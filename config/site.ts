@@ -1,8 +1,4 @@
-import {
-  UserGroupIcon,
-  HomeIcon,
-  DocumentDuplicateIcon,
-} from "@heroicons/react/24/outline";
+import { House, SaveAll, Users } from "lucide-react";
 
 export const siteConfig = {
   name: "Acme Dashboard",
@@ -13,11 +9,11 @@ export const siteConfig = {
 };
 
 export const ROUTES = [
-  { name: "Home", href: "/dashboard", icon: HomeIcon },
+  { name: "Home", href: "/dashboard", icon: House },
   {
     name: "Invoices",
     href: "/dashboard/invoices",
-    icon: DocumentDuplicateIcon,
+    icon: SaveAll,
   },
-  { name: "Customers", href: "/dashboard/customers", icon: UserGroupIcon },
+  { name: "Customers", href: "/dashboard/customers", icon: Users },
 ];
