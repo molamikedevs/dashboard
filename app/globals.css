@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
+/* Your existing variables */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Custom blue colors from v3 */
+  --color-blue-400: #2589FE;
+  --color-blue-500: #0070F3;
+  --color-blue-600: #2F6FEB;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* Light and Dark modes */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,6 +19,35 @@
   }
 }
 
+/* Tailwind v4 theme definitions */
+@theme inline {
+  /* Colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-blue-400: var(--color-blue-400);
+  --color-blue-500: var(--color-blue-500);
+  --color-blue-600: var(--color-blue-600);
+
+  /* fonts */
+  --font-sans: "Inter", Arial, Helvetica, sans-serif;
+  --font-serif: "Lusitana", serif;
+
+  /* Grid Template Columns */
+  --grid-template-columns-13: repeat(13, minmax(0, 1fr));
+
+  /* Keyframes */
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Animation utility */
+  --animate-shimmer: shimmer 2s infinite linear;
+}
+
+/* Body base styles */
 body {
   background: var(--background);
   color: var(--foreground);
