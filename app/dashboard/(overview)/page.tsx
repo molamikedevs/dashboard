@@ -1,15 +1,16 @@
+import { Suspense } from "react";
+import { getRevenue } from "@/lib/appwrite.actions";
 import CardWrapper from "@/components/dashboard/cards";
 import LatestInvoices from "@/components/dashboard/latest-invoices";
 import RevenueChart from "@/components/dashboard/revenue-chart";
-import { CardsSkeleton, LatestInvoicesSkeleton, RevenueChartSkeleton } from "@/components/skeletons";
-import { revenue } from "@/lib/placeholder-data";
-import { Revenue } from "@/types";
-
-import { Suspense } from "react";
+import {
+  CardsSkeleton,
+  LatestInvoicesSkeleton,
+  RevenueChartSkeleton,
+} from "@/components/skeletons";
 
 export default async function Page() {
-  const revenueData: Revenue[] = revenue;
-
+  const revenue = await getRevenue();
 
   return (
     <main>
@@ -21,7 +22,7 @@ export default async function Page() {
       </div>
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
         <Suspense fallback={<RevenueChartSkeleton />}>
-          <RevenueChart revenue={revenueData} />
+          <RevenueChart revenue={revenue} />
         </Suspense>
 
         <Suspense fallback={<LatestInvoicesSkeleton />}>
