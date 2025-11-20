@@ -1,8 +1,6 @@
 import { Banknote, Clock4, Inbox, Users } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
-import { LatestInvoice } from '@/types';
-import { invoices, latestInvoices } from '@/lib/placeholder-data';
-
+import { getInvoices, getLatestInvoices } from "@/lib/appwrite.actions";
 
 const iconMap = {
   collected: Banknote,
@@ -12,20 +10,22 @@ const iconMap = {
 };
 
 export default async function CardWrapper() {
-   const latestInvoicesData: LatestInvoice[] = latestInvoices;
-  const totalPaidInvoices = invoices
-    .filter((invoice) => invoice.status === "paid")
-    .reduce((sum, invoice) => sum + invoice.amount, 0);
-  const totalPendingInvoices = invoices
-    .filter((invoice) => invoice.status === "pending")
-    .reduce((sum, invoice) => sum + invoice.amount, 0);
+  const invoiceList = await getInvoices();
+  const latestInvoicesData = await getLatestInvoices();
+
+  const totalPaidInvoices = invoiceList
+    .filter((i) => i.status === "paid")
+    .reduce((sum, i) => sum + i.amount, 0);
+
+  const totalPendingInvoices = invoiceList
+    .filter((i) => i.status === "pending")
+    .reduce((sum, i) => sum + i.amount, 0);
+
   const numberOfInvoices = latestInvoicesData.length;
-  const numberOfCustomers = Array.from(
-    new Set(latestInvoicesData.map((invoice) => invoice.id))
-  ).length;
+
+  const numberOfCustomers = new Set(invoiceList.map((i) => i.customer_id)).size;
   return (
     <>
-
       <Card title="Collected" value={totalPaidInvoices} type="collected" />
       <Card title="Pending" value={totalPendingInvoices} type="pending" />
       <Card title="Total Invoices" value={numberOfInvoices} type="invoices" />

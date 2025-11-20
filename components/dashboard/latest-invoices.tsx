@@ -1,33 +1,29 @@
 import Image from 'next/image';
 import clsx from 'clsx';
-import { RefreshCcw } from 'lucide-react';
-import { latestInvoices } from '@/lib/placeholder-data';
-import { formatCurrency } from '@/lib/utils';
-import { LatestInvoice } from '@/types';
-
+import { RefreshCcw } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
+import { getLatestInvoices } from "@/lib/appwrite.actions";
 
 export default async function LatestInvoices() {
-    const latestInvoicesData: LatestInvoice[] = latestInvoices;
+  const latestInvoice = await getLatestInvoices();
+
   return (
     <div className="flex w-full flex-col md:col-span-4">
-      <h2 className="mb-4 text-xl md:text-2xl font-serif">
-        Latest Invoices
-      </h2>
+      <h2 className="mb-4 text-xl md:text-2xl font-serif">Latest Invoices</h2>
       <div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
         {/* NOTE: Uncomment this code in Chapter 7 */}
 
         <div className="bg-white px-6">
-          {latestInvoicesData.map((invoice, i) => {
+          {latestInvoice.map((invoice, i) => {
             return (
               <div
                 key={invoice.id}
                 className={clsx(
-                  'flex flex-row items-center justify-between py-4',
+                  "flex flex-row items-center justify-between py-4",
                   {
-                    'border-t': i !== 0,
-                  },
-                )}
-              >
+                    "border-t": i !== 0,
+                  }
+                )}>
                 <div className="flex items-center">
                   <Image
                     src={invoice.image_url}
@@ -45,9 +41,7 @@ export default async function LatestInvoices() {
                     </p>
                   </div>
                 </div>
-                <p
-                  className="truncate text-zinc-800 text-sm font-medium md:text-base font-serif"
-                >
+                <p className="truncate text-zinc-800 text-sm font-medium md:text-base font-serif">
                   {formatCurrency(invoice.amount)}
                 </p>
               </div>
