@@ -1,5 +1,5 @@
-import { Revenue } from '@/types';
-import { database, appwriteConfig } from './appwrite-config';
+import { FilterInvoice, InvoicesTable, LatestInvoice, Revenue } from "@/types";
+import { database, appwriteConfig } from "./appwrite-config";
 
 export async function getRevenue(): Promise<Revenue[]> {
   try {
@@ -42,15 +42,9 @@ export async function getInvoices() {
 }
 
 // Fetch latest invoices with customer details
-export async function getLatestInvoices() {
+export async function getLatestInvoices(): Promise<LatestInvoice[]> {
   const invoices = await getInvoices();
   const customers = await getCustomersMap();
-
-  console.log("Customer IDs:", [...customers.keys()]);
-  console.log(
-    "Invoice customer_id:",
-    invoices.map((i) => i.customer_id)
-  );
 
   return invoices.map((inv) => {
     const customer = customers.get(inv.customer_id);
@@ -67,6 +61,51 @@ export async function getLatestInvoices() {
   });
 }
 
+// Filter invoices based on a search query
+export async function fetchFilteredInvoices(
+  query: string,
+  currentPage: number,
+  limit: number = 10
+): Promise<InvoicesTable[]> {
+  const invoices = await getInvoices();
+  const customers = await getCustomersMap();
+  const itemsPerPage = limit;
 
+  // Filter invoices based on the query
+  const filteredInvoices = invoices.filter((inv) => {
+    const customer = customers.get(inv.customer_id);
+    const filterData: FilterInvoice = {
+      name: customer?.name || "",
+      email: customer?.email || "",
+      amount: inv.amount,
+      date: inv.date,
+      status: inv.status,
+    };
+    return Object.values(filterData).some((value) =>
+      value.toString().toLowerCase().includes(query.toLowerCase())
+    );
+  });
 
+  // Paginate the filtered results
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedInvoices = filteredInvoices.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
+  // Map the paginated invoices to include customer details
+  return paginatedInvoices.map((inv) => {
+    const customer = customers.get(inv.customer_id);
+
+    return {
+      id: inv.$id,
+      customer_id: inv.customer_id,
+      name: customer?.name || "",
+      email: customer?.email || "",
+      image_url: customer?.image_url || "",
+      amount: inv.amount,
+      date: inv.date,
+      status: inv.status,
+    };
+  });
+}

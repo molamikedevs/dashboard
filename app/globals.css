@@ -50,6 +50,21 @@
 /* Body base styles */
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: var(--color-blue-400);
   font-family: var(--font-sans);
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
