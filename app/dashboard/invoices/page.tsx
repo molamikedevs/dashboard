@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { InvoicesTableSkeleton } from "@/components/skeletons";
-import { fetchFilteredInvoices } from "@/lib/appwrite.actions";
+import { fetchInvoicesPages } from "@/lib/appwrite.actions";
 
 import Search from "@/components/search";
 import InvoicesTable from "@/components/invoices/table";
@@ -18,7 +18,7 @@ export default async function Page({ searchParams }: Props) {
   const searchTerms = await searchParams;
   const query = searchTerms?.query || "";
   const currentPage = Number(searchTerms?.page) || 1;
-  const totalPages = await fetchFilteredInvoices(query, currentPage);
+  const totalPages = await fetchInvoicesPages(query);
 
   return (
     <div className="w-full">

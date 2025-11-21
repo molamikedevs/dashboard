@@ -11,8 +11,6 @@ export default async function LatestInvoices() {
     <div className="flex w-full flex-col md:col-span-4">
       <h2 className="mb-4 text-xl md:text-2xl font-serif">Latest Invoices</h2>
       <div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
-        {/* NOTE: Uncomment this code in Chapter 7 */}
-
         <div className="bg-white px-6">
           {latestInvoice.map((invoice, i) => {
             return (
@@ -28,7 +26,7 @@ export default async function LatestInvoices() {
                   <Image
                     src={invoice.image_url}
                     alt={`${invoice.name}'s profile picture`}
-                    className="mr-4 rounded-full"
+                    className="mr-4 rounded-full w-5 h-5 md:w-10 md:h-10"
                     width={32}
                     height={32}
                   />
