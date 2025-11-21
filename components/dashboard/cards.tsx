@@ -1,6 +1,7 @@
 import { Banknote, Clock4, Inbox, Users } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
-import { fetchCustomers, getInvoices } from "@/lib/appwrite.actions";
+import { getInvoices } from "@/lib/actions/action.invoice";
+import { getCustomers } from "@/lib/actions/action.customer";
 
 const iconMap = {
   collected: Banknote,
@@ -11,7 +12,7 @@ const iconMap = {
 
 export default async function CardWrapper() {
   const invoiceList = await getInvoices();
-  const allCustomers = await fetchCustomers();
+  const allCustomers = await getCustomers();
 
   const totalPaidInvoices = invoiceList
     .filter((i) => i.status === "paid")

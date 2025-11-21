@@ -2,7 +2,7 @@ import Image from 'next/image';
 import clsx from 'clsx';
 import { RefreshCcw } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { getLatestInvoices } from "@/lib/appwrite.actions";
+import { getLatestInvoices } from "@/lib/actions/action.invoice";
 
 export default async function LatestInvoices() {
   const latestInvoice = await getLatestInvoices();
@@ -15,7 +15,7 @@ export default async function LatestInvoices() {
           {latestInvoice.map((invoice, i) => {
             return (
               <div
-                key={invoice.id}
+                key={invoice.$id}
                 className={clsx(
                   "flex flex-row items-center justify-between py-4",
                   {

@@ -1,59 +1,48 @@
-import { Customer, Invoice, LatestInvoice, Revenue } from "@/types";
-import { database, appwriteConfig } from "./appwrite-config";
+'use server';
+
+import { Invoice, LatestInvoice } from "@/types";
+import { database, appwriteConfig } from "../appwrite-config";
 import { redirect } from "next/navigation";
+import { FormSchema } from "../validation";
+import { revalidatePath } from "next/cache";
+import { getCustomersMap } from "./action.customer";
 
-export async function getRevenue(): Promise<Revenue[]> {
-  try {
-    const response = await database.listDocuments(
-      appwriteConfig.databaseId,
-      "revenue"
-    );
 
-    return response.documents.map((doc) => ({
-      month: doc.month,
-      revenue: doc.revenue,
-    }));
-  } catch (error) {
-    console.error("Error fetching revenue:", error);
-    return [];
-  }
-}
-
-// Helper function to get customers as a map
-export async function getCustomersMap() {
-  const response = await database.listDocuments(
-    appwriteConfig.databaseId,
-    "customers"
-  );
-
-  // Convert list -> map for fast lookup
-  const map = new Map();
-  response.documents.forEach((c) => map.set(c.$id, c));
-  return map;
-}
 
 // Fetch all invoices
-export async function getInvoices() {
+export async function getInvoices(): Promise<Invoice[]> {
   const response = await database.listDocuments(
     appwriteConfig.databaseId,
     "invoice-table"
   );
 
-  return response.documents;
-}
-
-export async function fetchCustomers(): Promise<Customer[]> {
-  const response = await database.listDocuments(
-    appwriteConfig.databaseId,
-    "customers"
-  );
-
   return response.documents.map((doc) => ({
     $id: doc.$id,
-    name: doc.name,
-    email: doc.email,
-    image_url: doc.image_url,
+    customer_id: doc.customer_id,
+    amount: doc.amount,
+    status: doc.status,
+    date: doc.date,
   }));
+}
+
+// Get invoice by ID
+export async function getInvoiceById(id: string): Promise<Invoice> {
+  try {
+    const document = await database.getDocument(
+      appwriteConfig.databaseId,
+      "invoice-table",
+      id
+    );
+    return {
+      $id: document.$id,
+      customer_id: document.customer_id,
+      amount: document.amount,
+      status: document.status,
+      date: document.date,
+    };
+  } catch (error) {
+    throw new Error("Invoice not found", { cause: error });
+  }
 }
 
 // Fetch latest invoices with customer details
@@ -162,23 +151,31 @@ export async function fetchInvoicesPages(query: string) {
   return totalPages;
 }
 
+const CreateInvoice = FormSchema.omit({ id: true, date: true });
+
 export async function createInvoice(formData: FormData): Promise<Invoice> {
-  const customerId = formData.get("customer_id") as string;
-  const amount = parseFloat(formData.get("amount") as string);
-  const status = formData.get("status") as "pending" | "paid";
+  const { customer_id, amount, status } = CreateInvoice.parse({
+    customer_id: formData.get("customer_id"),
+    amount: formData.get("amount"),
+    status: formData.get("status"),
+  });
+
+  const amountInCents = amount * 100;
+  const date = new Date().toISOString().split("T")[0];
 
   const response = await database.createDocument(
     appwriteConfig.databaseId,
     "invoice-table",
     "unique()",
     {
-      customer_id: customerId,
-      amount,
+      customer_id,
+      amount: amountInCents,
       status,
-      date: new Date().toISOString(),
+      date,
     }
   );
 
+  revalidatePath("/dashboard/invoices");
   redirect("/dashboard/invoices");
 
   return {
@@ -188,4 +185,50 @@ export async function createInvoice(formData: FormData): Promise<Invoice> {
     status: response.status,
     date: response.date,
   };
+}
+
+export async function updateInvoice(
+  id: string,
+  formData: FormData
+): Promise<Invoice> {
+  const amount = Number(formData.get("amount")) * 100;
+  const status = formData.get("status") as string;
+  const customer_id = formData.get("customer_id") as string;
+
+  const date = new Date().toISOString().split("T")[0];
+
+  const response = await database.updateDocument(
+    appwriteConfig.databaseId,
+    "invoice-table",
+    id,
+    {
+      amount,
+      status,
+      date,
+      customer_id,
+    }
+  );
+
+  revalidatePath("/dashboard/invoices");
+  redirect("/dashboard/invoices");
+
+  return {
+    $id: response.$id,
+    customer_id: response.customer_id,
+    amount: response.amount,
+    status: response.status,
+    date: response.date,
+  };
+}
+
+export async function deleteInvoice(id: string): Promise<void> {
+  await database.deleteDocument(
+    appwriteConfig.databaseId,
+    "invoice-table",
+    id
+  );
+
+  revalidatePath("/dashboard/invoices");
+  redirect("/dashboard/invoices");
+
 }

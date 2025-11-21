@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { fetchFilteredInvoices } from '@/lib/appwrite.actions';
+import { fetchFilteredInvoices } from "@/lib/actions/action.invoice";
 import { DeleteInvoice, UpdateInvoice } from './buttons';
 import { formatCurrency, formatDateToLocal } from '@/lib/utils';
 import InvoiceStatus from './status';

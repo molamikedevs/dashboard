@@ -1,5 +1,6 @@
 import { Suspense } from "react";
-import { getRevenue } from "@/lib/appwrite.actions";
+import { getRevenue } from "@/lib/actions/action.revenue";
+
 import CardWrapper from "@/components/dashboard/cards";
 import LatestInvoices from "@/components/dashboard/latest-invoices";
 import RevenueChart from "@/components/dashboard/revenue-chart";

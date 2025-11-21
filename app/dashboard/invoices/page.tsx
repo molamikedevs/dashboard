@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { InvoicesTableSkeleton } from "@/components/skeletons";
-import { fetchInvoicesPages } from "@/lib/appwrite.actions";
+import { fetchInvoicesPages } from "@/lib/actions/action.invoice";
 
 import Search from "@/components/search";
 import InvoicesTable from "@/components/invoices/table";

@@ -1,14 +1,10 @@
 import Link from 'next/link';
 import { Check, Clock, Receipt, User } from "lucide-react";
 import { Customer } from "@/types";
-import { createInvoice } from "@/lib/appwrite.actions";
+import { createInvoice } from "@/lib/actions/action.invoice";
 import { Button } from "../button";
 
 export default async function Form({ customers }: { customers: Customer[] }) {
-  const uniqueCustomers = Array.from(
-    new Map(customers.map((c) => [c.$id, c])).values()
-  );
-
   return (
     <form
       action={async (formData: FormData) => {
@@ -31,7 +27,7 @@ export default async function Form({ customers }: { customers: Customer[] }) {
               <option value="" disabled>
                 Select a customer
               </option>
-              {uniqueCustomers.map((customer) => (
+              {customers.map((customer) => (
                 <option key={customer.$id} value={customer.$id}>
                   {customer.name}
                 </option>

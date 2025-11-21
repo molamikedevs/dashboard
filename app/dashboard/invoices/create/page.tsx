@@ -1,19 +1,18 @@
-import { fetchCustomers } from "@/lib/appwrite.actions";
+import { getCustomers } from "@/lib/actions/action.customer";
 import Breadcrumbs from "@/components/invoices/breadcrumbs";
 import Form from "@/components/invoices/create-form";
 
-
 export default async function Page() {
-  const customers = await fetchCustomers();
+  const customers = await getCustomers();
 
   return (
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: 'Invoices', href: '/dashboard/invoices' },
+          { label: "Invoices", href: "/dashboard/invoices" },
           {
-            label: 'Create Invoice',
-            href: '/dashboard/invoices/create',
+            label: "Create Invoice",
+            href: "/dashboard/invoices/create",
             active: true,
           },
         ]}
