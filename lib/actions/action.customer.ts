@@ -1,20 +1,31 @@
 import { Customer } from "@/types";
 import { appwriteConfig, database } from "../appwrite-config";
 
-// Helper function to get customers as a map
-export async function getCustomersMap() {
-    const response = await database.listDocuments(
-    appwriteConfig.databaseId,
-    "customers"
-    );
+// =====================================================
+// Fetch Customers as Map (for JOIN-like operations)
+// =====================================================
 
-  // Convert list -> map for fast lookup
+export async function getCustomersMap() {
+  try {
+    const response = await database.listDocuments(
+      appwriteConfig.databaseId,
+      "customers"
+    );
     const map = new Map();
     response.documents.forEach((c) => map.set(c.$id, c));
     return map;
+  } catch (error) {
+    console.error("Failed to fetch customers map:", error);
+    throw new Error("Unable to fetch customers map.");
+  }
 }
 
+// =====================================================
+// Fetch Customers as Array (for UI lists)
+// =====================================================
+
 export async function getCustomers(): Promise<Customer[]> {
+  try {
     const response = await database.listDocuments(
     appwriteConfig.databaseId,
     "customers"
@@ -26,4 +37,8 @@ export async function getCustomers(): Promise<Customer[]> {
     email: doc.email,
     image_url: doc.image_url,
     }));
+  } catch (error) {
+    console.error("Failed to fetch customers:", error);
+    throw new Error("Unable to fetch customers.");
+  }
 }

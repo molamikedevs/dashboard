@@ -1,22 +1,24 @@
-'use server';
+"use server";
 
 import { Invoice, LatestInvoice } from "@/types";
 import { database, appwriteConfig } from "../appwrite-config";
 import { redirect } from "next/navigation";
-import { FormSchema } from "../validation";
 import { revalidatePath } from "next/cache";
+import { FormSchema } from "../validation";
 import { getCustomersMap } from "./action.customer";
+import { isAppwriteError } from "../utils";
 
+// ===============================
+// Fetch All Invoices
+// ===============================
 
-
-// Fetch all invoices
 export async function getInvoices(): Promise<Invoice[]> {
-  const response = await database.listDocuments(
+  const res = await database.listDocuments(
     appwriteConfig.databaseId,
     "invoice-table"
   );
 
-  return response.documents.map((doc) => ({
+  return res.documents.map((doc) => ({
     $id: doc.$id,
     customer_id: doc.customer_id,
     amount: doc.amount,
@@ -25,210 +27,240 @@ export async function getInvoices(): Promise<Invoice[]> {
   }));
 }
 
-// Get invoice by ID
-export async function getInvoiceById(id: string): Promise<Invoice> {
+// ===============================
+// Get Invoice By ID
+// ===============================
+
+export async function getInvoiceById(id: string): Promise<Invoice | null> {
   try {
-    const document = await database.getDocument(
+    const doc = await database.getDocument(
       appwriteConfig.databaseId,
       "invoice-table",
       id
     );
+
     return {
-      $id: document.$id,
-      customer_id: document.customer_id,
-      amount: document.amount,
-      status: document.status,
-      date: document.date,
+      $id: doc.$id,
+      customer_id: doc.customer_id,
+      amount: doc.amount,
+      status: doc.status,
+      date: doc.date,
     };
-  } catch (error) {
-    throw new Error("Invoice not found", { cause: error });
+  } catch (err: unknown) {
+    if (isAppwriteError(err) && err.code === 404) return null;
+
+    console.error("Database Error:", err);
+    throw new Error("Unexpected error fetching invoice.");
   }
 }
 
-// Fetch latest invoices with customer details
+// ===============================
+// Latest Invoices (merged w/ customers)
+// ===============================
+
 export async function getLatestInvoices(): Promise<LatestInvoice[]> {
   const invoices = await getInvoices();
   const customers = await getCustomersMap();
 
-  // 1. Merge invoice + customer
-  const merged = invoices.map((inv) => {
-    const c = customers.get(inv.customer_id);
-    return {
-      $id: inv.$id,
-      amount: inv.amount,
-      status: inv.status,
-      date: inv.date,
-      name: c?.name,
-      email: c?.email,
-      image_url: c?.image_url,
-    };
-  });
+  const merged = invoices
+    .map((inv) => {
+      const c = customers.get(inv.customer_id);
+      return {
+        $id: inv.$id,
+        amount: inv.amount,
+        status: inv.status,
+        date: inv.date,
+        name: c?.name,
+        email: c?.email,
+        image_url: c?.image_url,
+      };
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  // 2. Sort by date DESC (latest first)
-  merged.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
-  // 3. Return only the latest 6
   return merged.slice(0, 5);
 }
 
-const ITEMS_PER_PAGE = 6;
+// ===============================
+// Paginated + Filtered Fetch
+// ===============================
+
+const ITEMS_PER_PAGE = 5;
 
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number
 ) {
+  const invoices = await getInvoices();
+  const customers = await getCustomersMap();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  // Step 1: fetch raw data
-  const invoices = await getInvoices();
-  const customersMap = await getCustomersMap();
+  const q = query.toLowerCase();
 
-  // Step 2: merge invoice + customer into a single list (mimicking SQL JOIN)
-  const merged = invoices.map((inv) => {
-    const c = customersMap.get(inv.customer_id);
-    return {
-      id: inv.$id,
-      amount: inv.amount,
-      date: inv.date,
-      status: inv.status,
-      name: c?.name || "",
-      email: c?.email || "",
-      image_url: c?.image_url || "",
-    };
-  });
+  const merged = invoices
+    .map((inv) => {
+      const c = customers.get(inv.customer_id);
+      return {
+        id: inv.$id,
+        amount: inv.amount,
+        date: inv.date,
+        status: inv.status,
+        name: c?.name ?? "",
+        email: c?.email ?? "",
+        image_url: c?.image_url ?? "",
+      };
+    })
+    .filter((item) => {
+      const values = [
+        item.name,
+        item.email,
+        item.status,
+        item.amount.toString(),
+        item.date,
+      ];
+      return values.some((v) => v.toLowerCase().includes(q));
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  // Step 3: filter
-  const lower = query.toLowerCase();
-  const filtered = merged.filter(
-    (item) =>
-      item.name.toLowerCase().includes(lower) ||
-      item.email.toLowerCase().includes(lower) ||
-      item.status.toLowerCase().includes(lower) ||
-      item.amount.toString().includes(lower) ||
-      item.date.toString().includes(lower)
-  );
-
-  // Step 4: sort by date (DESC) just like SQL ORDER BY invoices.date DESC
-  filtered.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
-  // Step 5: paginate (mimicking LIMIT & OFFSET)
-  const paginated = filtered.slice(offset, offset + ITEMS_PER_PAGE);
-
-  return paginated;
+  return merged.slice(offset, offset + ITEMS_PER_PAGE);
 }
+
+// ===============================
+// Page Count
+// ===============================
 
 export async function fetchInvoicesPages(query: string) {
   const invoices = await getInvoices();
-  const customersMap = await getCustomersMap();
+  const customers = await getCustomersMap();
+  const q = query.toLowerCase();
 
-  const merged = invoices.map((inv) => {
-    const c = customersMap.get(inv.customer_id);
-    return {
-      name: c?.name || "",
-      email: c?.email || "",
-      status: inv.status,
-      amount: inv.amount,
-      date: inv.date,
-    };
+  const filtered = invoices.filter((inv) => {
+    const c = customers.get(inv.customer_id);
+    const values = [
+      c?.name ?? "",
+      c?.email ?? "",
+      inv.status,
+      inv.amount.toString(),
+      inv.date,
+    ];
+    return values.some((v) => v.toLowerCase().includes(q));
   });
 
-  const lower = query.toLowerCase();
-  const filtered = merged.filter(
-    (item) =>
-      item.name.toLowerCase().includes(lower) ||
-      item.email.toLowerCase().includes(lower) ||
-      item.status.toLowerCase().includes(lower) ||
-      item.amount.toString().includes(lower) ||
-      item.date.toString().includes(lower)
-  );
-
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-
-  return totalPages;
+  return Math.ceil(filtered.length / ITEMS_PER_PAGE);
 }
 
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
+// ===============================
+// Create Invoice
+// ===============================
 
-export async function createInvoice(formData: FormData): Promise<Invoice> {
-  const { customer_id, amount, status } = CreateInvoice.parse({
-    customer_id: formData.get("customer_id"),
-    amount: formData.get("amount"),
-    status: formData.get("status"),
-  });
+type CreateInvoiceState = {
+  success: boolean;
+  errors: Record<string, string> | null;
+  values: Record<string, string> | null;
+};
 
-  const amountInCents = amount * 100;
-  const date = new Date().toISOString().split("T")[0];
+export async function createInvoice(
+  _prevState: CreateInvoiceState,
+  formData: FormData
+): Promise<CreateInvoiceState> {
+  try {
+    const parsed = FormSchema.safeParse({
+      customer_id: formData.get("customer_id"),
+      amount: formData.get("amount"),
+      status: formData.get("status"),
+    });
 
-  const response = await database.createDocument(
-    appwriteConfig.databaseId,
-    "invoice-table",
-    "unique()",
-    {
-      customer_id,
-      amount: amountInCents,
-      status,
-      date,
+    if (!parsed.success) {
+      const errors: Record<string, string> = {};
+      parsed.error.errors.forEach((err) => {
+        if (err.path?.[0]) errors[err.path[0]] = err.message;
+      });
+
+      return {
+        success: false,
+        errors,
+        values: {
+          customer_id: String(formData.get("customer_id") ?? ""),
+          amount: String(formData.get("amount") ?? ""),
+          status: String(formData.get("status") ?? ""),
+        },
+      };
     }
-  );
 
-  revalidatePath("/dashboard/invoices");
-  redirect("/dashboard/invoices");
+    const { customer_id, amount, status } = parsed.data;
 
-  return {
-    $id: response.$id,
-    customer_id: response.customer_id,
-    amount: response.amount,
-    status: response.status,
-    date: response.date,
-  };
+    await database.createDocument(
+      appwriteConfig.databaseId,
+      "invoice-table",
+      "unique()",
+      {
+        customer_id,
+        amount: amount * 100,
+        status,
+        date: new Date().toISOString().split("T")[0],
+      }
+    );
+
+    revalidatePath("/dashboard/invoices");
+    redirect("/dashboard/invoices");
+  } catch (err) {
+    console.error("Failed to create invoice:", err);
+    return {
+      success: false,
+      errors: { general: "Something went wrong. Try again later." },
+      values: null,
+    };
+  }
 }
+
+// ===============================
+// Update Invoice
+// ===============================
 
 export async function updateInvoice(
   id: string,
   formData: FormData
 ): Promise<Invoice> {
-  const amount = Number(formData.get("amount")) * 100;
-  const status = formData.get("status") as string;
-  const customer_id = formData.get("customer_id") as string;
+  try {
+    const amount = Number(formData.get("amount")) * 100;
+    const status = String(formData.get("status"));
+    const customer_id = String(formData.get("customer_id"));
 
-  const date = new Date().toISOString().split("T")[0];
+    const response = await database.updateDocument(
+      appwriteConfig.databaseId,
+      "invoice-table",
+      id,
+      {
+        amount,
+        status,
+        customer_id,
+        date: new Date().toISOString().split("T")[0],
+      }
+    );
 
-  const response = await database.updateDocument(
-    appwriteConfig.databaseId,
-    "invoice-table",
-    id,
-    {
-      amount,
-      status,
-      date,
-      customer_id,
-    }
-  );
+    // Only triggers after SUCCESS
+    revalidatePath("/dashboard/invoices");
+    redirect("/dashboard/invoices");
 
-  revalidatePath("/dashboard/invoices");
-  redirect("/dashboard/invoices");
-
-  return {
-    $id: response.$id,
-    customer_id: response.customer_id,
-    amount: response.amount,
-    status: response.status,
-    date: response.date,
-  };
+    return {
+      $id: response.$id,
+      customer_id: response.customer_id,
+      amount: response.amount,
+      status: response.status,
+      date: response.date,
+    };
+  } catch (err) {
+    console.error("Failed to update invoice:", err);
+    throw new Error("Unable to update invoice at this time.");
+  }
 }
 
+// ===============================
+// Delete Invoice
+// ===============================
+
 export async function deleteInvoice(id: string): Promise<void> {
-  await database.deleteDocument(
-    appwriteConfig.databaseId,
-    "invoice-table",
-    id
-  );
+  await database.deleteDocument(appwriteConfig.databaseId, "invoice-table", id);
 
   revalidatePath("/dashboard/invoices");
   redirect("/dashboard/invoices");
-
 }

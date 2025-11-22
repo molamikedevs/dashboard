@@ -73,3 +73,10 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
     totalPages,
   ];
 };
+
+/**
+ * Narrow Appwrite errors to safely check status codes.
+ */
+export function isAppwriteError(err: unknown): err is { code: number } {
+  return typeof err === "object" && err !== null && "code" in err;
+}
