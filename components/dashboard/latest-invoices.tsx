@@ -9,9 +9,9 @@ export default async function LatestInvoices() {
 
   return (
     <div className="flex w-full flex-col md:col-span-4">
-      <h2 className="mb-4 text-xl md:text-2xl font-serif">Latest Invoices</h2>
-      <div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
-        <div className="bg-white px-6">
+      <h2 className="mb-4 text-xl md:text-2xl font-serif ">Latest Invoices</h2>
+      <div className="flex grow flex-col bg-custom-muted justify-between rounded-xl p-4">
+        <div className="px-6 rounded-lg bg-custom-background">
           {latestInvoice.map((invoice, i) => {
             return (
               <div
@@ -21,7 +21,10 @@ export default async function LatestInvoices() {
                   {
                     "border-t": i !== 0,
                   }
-                )}>
+                )}
+                style={{
+                  borderColor: i !== 0 ? "var(--border)" : "transparent",
+                }}>
                 <div className="flex items-center">
                   <Image
                     src={invoice.image_url}
@@ -31,15 +34,21 @@ export default async function LatestInvoices() {
                     height={32}
                   />
                   <div className="min-w-0">
-                    <p className="truncate text-zinc-700 text-sm font-semibold md:text-base">
+                    <p
+                      className="truncate text-sm font-semibold md:text-base"
+                      style={{ color: "var(--foreground)" }}>
                       {invoice.name}
                     </p>
-                    <p className="hidden text-sm text-gray-500 sm:block">
+                    <p
+                      className="hidden text-sm sm:block"
+                      style={{ color: "var(--muted-foreground)" }}>
                       {invoice.email}
                     </p>
                   </div>
                 </div>
-                <p className="truncate text-zinc-800 text-sm font-medium md:text-base font-serif">
+                <p
+                  className="truncate text-sm font-medium md:text-base font-serif"
+                  style={{ color: "var(--foreground)" }}>
                   {formatCurrency(invoice.amount)}
                 </p>
               </div>
@@ -47,8 +56,15 @@ export default async function LatestInvoices() {
           })}
         </div>
         <div className="flex items-center pb-2 pt-6">
-          <RefreshCcw className="h-5 w-5 text-gray-500" />
-          <h3 className="ml-2 text-sm text-gray-500 ">Updated just now</h3>
+          <RefreshCcw
+            style={{ color: "var(--muted-foreground)" }}
+            className="h-5 w-5"
+          />
+          <h3
+            className="ml-2 text-sm"
+            style={{ color: "var(--muted-foreground)" }}>
+            Updated just now
+          </h3>
         </div>
       </div>
     </div>

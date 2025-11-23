@@ -1,33 +1,40 @@
+/* globals.css */
 @import "tailwindcss";
 
-/* Your existing variables */
 :root {
+  /* Light theme */
   --background: #ffffff;
   --foreground: #171717;
-
-  /* Custom blue colors from v3 */
-  --color-blue-400: #2589FE;
-  --color-blue-500: #0070F3;
-  --color-blue-600: #2F6FEB;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --primary: #0070F3;
+  --primary-foreground: #ffffff;
+  --muted: #f9fafb; /* gray-50 */
+  --muted-foreground: #6b7280; /* gray-500 */
+  --border: #e5e7eb; /* gray-200 */
 }
 
-/* Light and Dark modes */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  /* Dark theme */
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card: #171717;
+  --card-foreground: #ededed;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --muted: #262626; /* gray-800 */
+  --muted-foreground: #a3a3a3; /* gray-400 */
+  --border: #404040; /* gray-700 */
+  --border-muted: #6b7280; /* gray-700 variant */
 }
 
-/* Tailwind v4 theme definitions */
+/* Tailwind v4 theme definitions using CSS variables */
 @theme inline {
-  /* Colors */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-
-  --color-blue-400: var(--color-blue-400);
-  --color-blue-500: var(--color-blue-500);
-  --color-blue-600: var(--color-blue-600);
+  --background: var(--background);
+  --foreground: var(--foreground);
+  --color-blue-400: #2589FE;
+  --color-blue-500: var(--primary);
+  --color-blue-600: #2F6FEB;
 
   /* fonts */
   --font-sans: "Inter", Arial, Helvetica, sans-serif;
@@ -43,28 +50,45 @@
     }
   }
 
-  /* Animation utility */
   --animate-shimmer: shimmer 2s infinite linear;
 }
 
-/* Body base styles */
 body {
   background: var(--background);
-  color: var(--color-blue-400);
+  color: var(--foreground);
   font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-input[type='number'] {
-  -moz-appearance: textfield;
-  appearance: textfield;
+/* Utility classes for CSS variables */
+.bg-custom-background {
+  background-color: var(--background);
 }
 
-input[type='number']::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.bg-custom-card {
+  background-color: var(--card);
 }
 
-input[type='number']::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.bg-custom-muted {
+  background-color: var(--muted);
+}
+
+.text-custom-foreground {
+  color: var(--foreground);
+}
+
+.text-custom-card-foreground {
+  color: var(--card-foreground);
+}
+
+.text-custom-muted-foreground {
+  color: var(--muted-foreground);
+}
+
+.border-custom {
+  border-color: var(--border);
+}
+
+.border-muted {
+  border-color: var(--border-muted);
 }

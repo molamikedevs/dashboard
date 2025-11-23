@@ -98,5 +98,11 @@ export type InvoiceForm = {
   message?: string | null;
 };
 
+export type ErrorType = {
+  success: boolean;
+  errors: Record<string, string> | null;
+  values: Record<string, string> | null;
+};
+
 
 

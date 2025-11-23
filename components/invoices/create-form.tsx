@@ -16,7 +16,7 @@ export default function Form({ customers }: { customers: Customer[] }) {
 
   return (
     <form action={formAction} className="mt-6">
-      <div className="rounded-md bg-gray-50 p-4 md:p-6">
+      <div className="rounded-md bg-custom-muted text-custom-foreground p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
           <label htmlFor="customer" className="mb-2 block text-sm font-medium">
@@ -29,8 +29,10 @@ export default function Form({ customers }: { customers: Customer[] }) {
               defaultValue={state.values?.customer_id ?? ""}
               aria-invalid={!!state.errors?.customer_id}
               className={`peer block w-full cursor-pointer rounded-md border py-2 pl-10 text-sm outline-2 ${
-                state.errors?.customer_id ? "border-red-500" : "border-gray-200"
-              } placeholder:text-gray-500`}>
+                state.errors?.customer_id
+                  ? "border-red-500"
+                  : "border-custom-border bg-custom-muted text-custom-foreground"
+              } placeholder:text-custom-foreground`}>
               <option value="" disabled>
                 Select a customer
               </option>
@@ -84,7 +86,7 @@ export default function Form({ customers }: { customers: Customer[] }) {
           <legend className="mb-2 block text-sm font-medium">
             Set the invoice status
           </legend>
-          <div className="rounded-md border border-gray-200 bg-white px-3.5 py-3">
+          <div className="rounded-md border bg-custom-muted px-3.5 py-3">
             <div className="flex gap-4">
               {/* Pending */}
               <div className="flex items-center">
@@ -94,11 +96,11 @@ export default function Form({ customers }: { customers: Customer[] }) {
                   type="radio"
                   value="pending"
                   defaultChecked={state.values?.status === "pending"}
-                  className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
+                  className="h-4 w-4 cursor-pointer border-gray-300 bg-custom-muted text-custom-foreground focus:ring-2"
                 />
                 <label
                   htmlFor="pending"
-                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600">
+                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-custom-muted px-3 py-1.5 text-xs font-medium text-custom-foreground">
                   Pending <Clock className="h-4 w-4" />
                 </label>
               </div>
@@ -111,11 +113,11 @@ export default function Form({ customers }: { customers: Customer[] }) {
                   type="radio"
                   value="paid"
                   defaultChecked={state.values?.status === "paid"}
-                  className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
+                  className="h-4 w-4 cursor-pointer border- bg-custom-muted text-custom-foreground focus:ring-2"
                 />
                 <label
                   htmlFor="paid"
-                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-medium text-white">
+                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-medium">
                   Paid <Check className="h-4 w-4" />
                 </label>
               </div>

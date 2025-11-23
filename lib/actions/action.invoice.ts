@@ -1,6 +1,6 @@
 "use server";
 
-import { Invoice, LatestInvoice } from "@/types";
+import { ErrorType, Invoice, LatestInvoice } from "@/types";
 import { database, appwriteConfig } from "../appwrite-config";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -152,16 +152,10 @@ export async function fetchInvoicesPages(query: string) {
 // Create Invoice
 // ===============================
 
-type CreateInvoiceState = {
-  success: boolean;
-  errors: Record<string, string> | null;
-  values: Record<string, string> | null;
-};
-
 export async function createInvoice(
-  _prevState: CreateInvoiceState,
+  _prevState: ErrorType,
   formData: FormData
-): Promise<CreateInvoiceState> {
+): Promise<ErrorType> {
   try {
     const parsed = FormSchema.safeParse({
       customer_id: formData.get("customer_id"),

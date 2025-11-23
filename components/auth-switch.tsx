@@ -1,0 +1,27 @@
+import Link from "next/link";
+
+export default function AuthSwitch({ mode }: { mode: "login" | "signup" }) {
+  return (
+    <>
+      {mode === "login" ? (
+        <p className="text-sm text-gray-600">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="sign-up"
+            className="paragraph-semibold primary-text-gradient text-blue-400 hover:underline">
+            Sign up
+          </Link>
+        </p>
+      ) : (
+        <p className="text-sm text-gray-600">
+          Already have an account?{" "}
+          <Link
+            href="login"
+            className="paragraph-semibold primary-text-gradient text-blue-400 hover:underline">
+            Login
+          </Link>
+        </p>
+      )}
+    </>
+  );
+}
