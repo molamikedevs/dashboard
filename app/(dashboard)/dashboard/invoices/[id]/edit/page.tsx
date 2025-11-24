@@ -4,6 +4,11 @@ import { getInvoiceById } from "@/lib/actions/action.invoice";
 import Breadcrumbs from "@/components/invoices/breadcrumbs";
 import EditInvoiceForm from "@/components/invoices/edit-form";
 
+
+export const metadata = {
+  title: "Edit Invoice",
+};
+
 interface Props {
   params: Promise<{ id: string }>;
 }

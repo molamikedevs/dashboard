@@ -34,21 +34,15 @@ export default async function LatestInvoices() {
                     height={32}
                   />
                   <div className="min-w-0">
-                    <p
-                      className="truncate text-sm font-semibold md:text-base"
-                      style={{ color: "var(--foreground)" }}>
+                    <p className="truncate text-sm font-semibold md:text-base text-custom-foreground">
                       {invoice.name}
                     </p>
-                    <p
-                      className="hidden text-sm sm:block"
-                      style={{ color: "var(--muted-foreground)" }}>
+                    <p className="hidden text-sm sm:block text-custom-muted-foreground">
                       {invoice.email}
                     </p>
                   </div>
                 </div>
-                <p
-                  className="truncate text-sm font-medium md:text-base font-serif"
-                  style={{ color: "var(--foreground)" }}>
+                <p className="truncate text-sm font-medium md:text-base font-serif text-custom-foreground">
                   {formatCurrency(invoice.amount)}
                 </p>
               </div>
@@ -56,13 +50,8 @@ export default async function LatestInvoices() {
           })}
         </div>
         <div className="flex items-center pb-2 pt-6">
-          <RefreshCcw
-            style={{ color: "var(--muted-foreground)" }}
-            className="h-5 w-5"
-          />
-          <h3
-            className="ml-2 text-sm"
-            style={{ color: "var(--muted-foreground)" }}>
+          <RefreshCcw className="h-5 w-5 text-custom-muted-foreground" />
+          <h3 className="ml-2 text-sm text-custom-muted-foreground">
             Updated just now
           </h3>
         </div>

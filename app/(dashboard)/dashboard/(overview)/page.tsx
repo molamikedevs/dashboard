@@ -10,6 +10,10 @@ import {
   RevenueChartSkeleton,
 } from "@/components/skeletons";
 
+export const metadata = {
+  title: "Dashboard",
+};
+
 export default async function Page() {
   const revenue = await getRevenue();
 

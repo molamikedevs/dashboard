@@ -1,40 +1,96 @@
 'use client';
 
+import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useDebounce } from "use-debounce";
+import { formUrlQuery, removeKeysFromUrlQuery } from "@/lib/url";
 
-import { SearchIcon } from 'lucide-react';
-import { useDebouncedCallback } from 'use-debounce';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+interface Props {
+  route: string;
+  imgSrc: string;
+  placeholder: string;
+  otherClasses?: string;
+  iconPosition?: "left" | "right";
+}
 
-export default function Search({ placeholder }: { placeholder: string }) {
-  const searchParams = useSearchParams();
+export default function Search({
+  placeholder,
+  route,
+  otherClasses,
+  iconPosition,
+  imgSrc,
+}: Props) {
   const pathname = usePathname();
-    const { replace } = useRouter();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const query = searchParams.get("query") || "";
 
-  const handleSearch = useDebouncedCallback((term) => {
-  const params = new URLSearchParams(searchParams);
-  params.set('page', '1'); // Reset to first page on new search
-  if (term) {
-    params.set('query', term);
-  } else {
-    params.delete('query');
-  }
-  replace(`${pathname}?${params.toString()}`);
-}, 300);
+  const [searchQuery, setSearchQuery] = useState(query);
+  const [debouncedQuery] = useDebounce(searchQuery, 300);
 
+  // URL update logic
+  useEffect(() => {
+    // Don't update if query hasn't changed
+    if (debouncedQuery === query) return;
+
+    let newUrl: string;
+
+    if (debouncedQuery) {
+      newUrl = formUrlQuery({
+        params: searchParams.toString(),
+        key: "query",
+        value: debouncedQuery,
+      });
+    } else {
+      // Only remove query if we're on the target route
+      if (pathname === route) {
+        newUrl = removeKeysFromUrlQuery({
+          params: searchParams.toString(),
+          keysToRemove: ["query"],
+        });
+      } else {
+        return;
+      }
+    }
+
+    // Only push if URL actually changed
+    if (newUrl !== window.location.href) {
+      router.push(newUrl, { scroll: false });
+    }
+  }, [debouncedQuery, query, searchParams, router, pathname, route]);
 
   return (
-    <div className="relative flex flex-1 shrink-0">
+    <div
+      className={`bg-custom-muted flex min-h-14 grow items-center gap-4 rounded-[10px] px-4 ${otherClasses}`}>
       <label htmlFor="search" className="sr-only">
         Search
       </label>
+      {iconPosition === "left" && (
+        <Image
+          src={imgSrc}
+          width={24}
+          height={24}
+          alt="Search"
+          className="cursor-pointer"
+        />
+      )}
       <input
-        className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+        type="text"
         placeholder={placeholder}
-        onChange={(e) => handleSearch(e.target.value)}
-        defaultValue={searchParams.get('query')?.toString()}
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="paragraph-regular no-focus placeholder text-dark400_light700 border-none shadow-none outline-none"
       />
-      <SearchIcon className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
-      
+      {iconPosition === "right" && (
+        <Image
+          src={imgSrc}
+          width={15}
+          height={15}
+          alt="Search"
+          className="cursor-pointer"
+        />
+      )}
     </div>
   );
 }

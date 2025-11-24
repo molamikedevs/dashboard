@@ -1,8 +1,8 @@
 import { House, Plus, SaveAll, Users } from "lucide-react";
 
 export const siteConfig = {
-  name: "Acme Dashboard",
-  description: "A dashboard application built with Next.js",
+  name: "Zenova Admin",
+  description: "Admin dashboard for Zenova invoicing platform",
   icons: {
     logo: "/logo.png",
   },

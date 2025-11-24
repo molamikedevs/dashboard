@@ -80,3 +80,5 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
 export function isAppwriteError(err: unknown): err is { code: number } {
   return typeof err === "object" && err !== null && "code" in err;
 }
+
+export const ITEMS_PER_PAGE = 6;

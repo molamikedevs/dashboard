@@ -1,4 +1,4 @@
-import AcmeLogo from "@/components/acme-logo";
+import AcmeLogo from "@/components/logo";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

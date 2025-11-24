@@ -27,8 +27,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   return (
     <form action={formAction} className="space-y-3">
-      <div className="flex-1 rounded-lg bg-gray-50 px-4 sm:px-6 pb-6 pt-8 w-full max-w-md mx-auto">
-        <h1 className={`mb-4 text-xl sm:text-2xl text-background font-serif text-center`}>
+      <div className="flex-1 rounded-lg bg-custom-muted px-4 sm:px-6 pb-6 pt-8 w-full max-w-md mx-auto">
+        <h1
+          className={`mb-4 text-xl sm:text-2xl text-background font-serif text-center`}>
           {mode === "login"
             ? "Please log in to continue."
             : "Please sign up to continue."}
@@ -51,7 +52,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
               </label>
               <div className="relative">
                 <input
-                  className="peer block w-full rounded-md border border-gray-200 py-2.5 pl-10 pr-3 text-sm outline-2 placeholder:text-gray-500"
+                  className="peer block w-full rounded-md border border-muted py-2.5 pl-10 pr-3 text-sm outline-2 placeholder:text-gray-500"
                   id="username"
                   type="text"
                   name="username"
@@ -67,7 +68,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 </p>
               )}
             </div>
-            
+
             <div>
               <label
                 className="mb-2 block text-xs font-medium text-gray-900"
@@ -92,7 +93,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 </p>
               )}
             </div>
-            
+
             <div>
               <label
                 className="mb-2 block text-xs font-medium text-gray-900"
@@ -156,7 +157,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 </p>
               )}
             </div>
-            
+
             <div>
               <label
                 className="mb-2 block text-xs font-medium text-gray-900"
@@ -195,7 +196,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             </div>
           </div>
         )}
-        
+
         <div className="text-center mt-6">
           <SubmitButton mode={mode} />
           <div className="mt-4">

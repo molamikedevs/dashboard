@@ -139,6 +139,13 @@ export async function signup(prevState: ErrorType, formData: FormData): Promise<
   }
 }
 
+// Google OAuth Login
+export async function oauthLogin(provider: string) {
+  const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`;
+  const oauthUrl = await (account as any).createOAuth2Session(provider, redirectUrl);
+  redirect(oauthUrl as unknown as string);
+}
+
 
 export async function logout() {
   try {

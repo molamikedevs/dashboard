@@ -10,10 +10,14 @@ export default async function CustomersTable({
 }) {
   return (
     <div className="w-full">
-      <h1 className="mb-8 text-xl md:text-2xl font-serif">
-        Customers
-      </h1>
-      <Search placeholder="Search customers..." />
+      <h1 className="mb-8 text-xl md:text-2xl font-serif">Customers</h1>
+      <Search
+        placeholder="Search customers..."
+        route="/dashboard/customers"
+        imgSrc="/icons/search.svg"
+        otherClasses="mb-6 flex-1 md:max-w-sm"
+        iconPosition="left"
+      />
       <div className="mt-6 flow-root">
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full align-middle">
@@ -21,9 +25,8 @@ export default async function CustomersTable({
               <div className="md:hidden">
                 {customers?.map((customer) => (
                   <div
-                    key={customer.id}
-                    className="mb-2 w-full rounded-md bg-white p-4"
-                  >
+                    key={customer.$id}
+                    className="mb-2 w-full rounded-md bg-white p-4">
                     <div className="flex items-center justify-between border-b pb-4">
                       <div>
                         <div className="mb-2 flex items-center">
@@ -82,7 +85,7 @@ export default async function CustomersTable({
 
                 <tbody className="divide-y divide-gray-200 text-gray-900">
                   {customers.map((customer) => (
-                    <tr key={customer.id} className="group">
+                    <tr key={customer.$id} className="group">
                       <td className="whitespace-nowrap bg-white py-5 pl-4 pr-3 text-sm text-black group-first-of-type:rounded-md group-last-of-type:rounded-md sm:pl-6">
                         <div className="flex items-center gap-3">
                           <Image

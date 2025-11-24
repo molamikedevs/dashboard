@@ -4,9 +4,9 @@ import { ErrorType, Invoice, LatestInvoice } from "@/types";
 import { database, appwriteConfig } from "../appwrite-config";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { FormSchema } from "../validation";
+import { CreateFormSchema, UpdateFormSchema } from "../validation";
 import { getCustomersMap } from "./action.customer";
-import { isAppwriteError } from "../utils";
+import { isAppwriteError, ITEMS_PER_PAGE } from "../utils";
 
 // ===============================
 // Fetch All Invoices
@@ -84,8 +84,6 @@ export async function getLatestInvoices(): Promise<LatestInvoice[]> {
 // Paginated + Filtered Fetch
 // ===============================
 
-const ITEMS_PER_PAGE = 5;
-
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number
@@ -155,10 +153,10 @@ export async function fetchInvoicesPages(query: string) {
 export async function createInvoice(
   _prevState: ErrorType,
   formData: FormData
-): Promise<ErrorType> {
+): Promise<ErrorType | Invoice> {
   try {
-    const parsed = FormSchema.safeParse({
-      customer_id: formData.get("customer_id"),
+    const parsed = CreateFormSchema.safeParse({
+      customer_id: formData.get("customer_id") as string,
       amount: formData.get("amount"),
       status: formData.get("status"),
     });
@@ -193,17 +191,21 @@ export async function createInvoice(
         date: new Date().toISOString().split("T")[0],
       }
     );
-
-    revalidatePath("/dashboard/invoices");
-    redirect("/dashboard/invoices");
   } catch (err) {
     console.error("Failed to create invoice:", err);
     return {
       success: false,
       errors: { general: "Something went wrong. Try again later." },
-      values: null,
+      values: {
+        customer_id: String(formData.get("customer_id") ?? ""),
+        amount: String(formData.get("amount") ?? ""),
+        status: String(formData.get("status") ?? ""),
+      },
     };
   }
+
+  revalidatePath("/dashboard/invoices");
+  redirect("/dashboard/invoices");
 }
 
 // ===============================
@@ -213,40 +215,69 @@ export async function createInvoice(
 export async function updateInvoice(
   id: string,
   formData: FormData
-): Promise<Invoice> {
+): Promise<ErrorType | Invoice> {
   try {
-    const amount = Number(formData.get("amount")) * 100;
-    const status = String(formData.get("status"));
-    const customer_id = String(formData.get("customer_id"));
+    const parsed = UpdateFormSchema.safeParse({
+      customer_id: formData.get("customer_id"),
+      amount: formData.get("amount"),
+      status: formData.get("status"),
+      date: formData.get("date") || new Date().toISOString().split("T")[0],
+    });
 
-    const response = await database.updateDocument(
+    if (!parsed.success) {
+      const errors: Record<string, string> = {};
+      parsed.error.errors.forEach((err) => {
+        if (err.path?.[0]) errors[err.path[0]] = err.message;
+      });
+
+      return {
+        success: false,
+        errors,
+        values: {
+          customer_id: String(formData.get("customer_id") ?? ""),
+          amount: String(formData.get("amount") ?? ""),
+          status: String(formData.get("status") ?? ""),
+        },
+      };
+    }
+
+    const { customer_id, amount, status, date } = parsed.data;
+
+    await database.updateDocument(
       appwriteConfig.databaseId,
       "invoice-table",
       id,
       {
-        amount,
+        amount: amount * 100,
         status,
         customer_id,
-        date: new Date().toISOString().split("T")[0],
+        date,
       }
     );
 
-    // Only triggers after SUCCESS
     revalidatePath("/dashboard/invoices");
-    redirect("/dashboard/invoices");
 
-    return {
-      $id: response.$id,
-      customer_id: response.customer_id,
-      amount: response.amount,
-      status: response.status,
-      date: response.date,
-    };
+    // Throw the redirect to properly interrupt execution
+    throw redirect("/dashboard/invoices");
   } catch (err) {
+    // Check if this is a redirect error
+    if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
+      throw err; // Re-throw redirect errors
+    }
+
     console.error("Failed to update invoice:", err);
-    throw new Error("Unable to update invoice at this time.");
+    return {
+      success: false,
+      errors: { general: "Unable to update invoice at this time." },
+      values: {
+        customer_id: String(formData.get("customer_id") ?? ""),
+        amount: String(formData.get("amount") ?? ""),
+        status: String(formData.get("status") ?? ""),
+      },
+    };
   }
 }
+
 
 // ===============================
 // Delete Invoice

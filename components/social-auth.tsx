@@ -1,10 +1,17 @@
 import Image from "next/image";
 import { Button } from "./button";
+import { oauthLogin } from "@/lib/actions/action.auth";
 
 const SocialAuth = () => {
+  const handleGoogleLogin = async () => {
+    await oauthLogin("google");
+  };
+
   return (
     <div className="mt-10 flex flex-wrap gap-2.5">
-      <Button className="w-full justify-center bg-gray-800 hover:bg-gray-800">
+      <Button
+        className="w-full justify-center bg-gray-800 hover:bg-gray-800"
+        onClick={handleGoogleLogin}>
         <Image
           src="/icons/google.svg"
           alt="Google Logo"
