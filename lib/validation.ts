@@ -1,7 +1,6 @@
 import { z } from "zod/v3";
 
-// Create separate schemas
-export const CreateFormSchema = z.object({
+export const CreateInvoiceSchema = z.object({
   customer_id: z.string({
     invalid_type_error: "Please select a customer.",
   }),
@@ -13,7 +12,7 @@ export const CreateFormSchema = z.object({
   }),
 });
 
-export const UpdateFormSchema = z.object({
+export const UpdateInvoiceSchema = z.object({
   customer_id: z.string({
     invalid_type_error: "Please select a customer.",
   }),
@@ -24,6 +23,22 @@ export const UpdateFormSchema = z.object({
     invalid_type_error: "Please select an invoice status.",
   }),
   date: z.string(),
+});
+
+export const CreateCustomerSchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "Name must be at least 2 characters long." }),
+  email: z.string().email({ message: "Please provide a valid email address." }),
+  image_url: z.string().optional(),
+});
+
+export const UpdateCustomerSchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "Name must be at least 2 characters long." }),
+  email: z.string().email({ message: "Please provide a valid email address." }),
+  image_url: z.string().optional(),
 });
 
 export const LoginSchema = z.object({

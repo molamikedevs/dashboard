@@ -5,8 +5,8 @@ export default function AcmeLogo() {
   return (
     <div
       className={`font-serif flex flex-row items-center leading-none text-white`}>
-      <Image src="/logo.png" alt="Zenova Admin Logo" width={50} height={40} />
-      <p className="text-[40px]">Zenova Admin</p>
+      <p className="text-[40px] mr-2">Modex</p>
+      <Image src="/logo.png" alt="Modex Logo" width={50} height={40} />
     </div>
   );
 }

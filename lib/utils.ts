@@ -7,9 +7,37 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const formatCurrency = (amount: number) => {
-  return (amount / 100).toLocaleString("en-US", {
+  // Handle edge cases
+  if (typeof amount !== "number" || isNaN(amount)) {
+    return "$0.00";
+  }
+
+  // If amount is in cents (like 1500 = $15.00), divide by 100
+  // If amount is already in dollars (like 15.00), use as is
+  const isLikelyCents = amount >= 1000 && amount % 100 === 0;
+  const dollarAmount = isLikelyCents ? amount / 100 : amount;
+
+  return dollarAmount.toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+// Alternative version if you know your amounts are always in cents:
+export const formatCurrencyFromCents = (amountInCents: number) => {
+  if (typeof amountInCents !== "number" || isNaN(amountInCents)) {
+    return "$0.00";
+  }
+
+  const dollars = amountInCents / 100;
+
+  return dollars.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 };
 

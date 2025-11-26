@@ -1,11 +1,9 @@
-import { Customer, Invoice } from "@/types";
+"use server";
+
+import { Customer } from "@/types";
 import { appwriteConfig, database } from "../appwrite-config";
 import { getInvoices } from "./action.invoice";
-import { formatCurrency, ITEMS_PER_PAGE } from "../utils";
-
-// =====================================================
-// Fetch Customers as Map (for JOIN-like operations)
-// =====================================================
+import { ITEMS_PER_PAGE } from "../utils";
 
 export async function getCustomersMap() {
   try {
@@ -21,10 +19,6 @@ export async function getCustomersMap() {
     throw new Error("Unable to fetch customers map.");
   }
 }
-
-// =====================================================
-// Fetch Customers as Array (for UI lists)
-// =====================================================
 
 export async function getCustomers(): Promise<Customer[]> {
   try {
@@ -45,117 +39,80 @@ export async function getCustomers(): Promise<Customer[]> {
   }
 }
 
-// =====================================================
-// Fetch Customers with Invoice Stats
-// =====================================================
-export async function getCustomersWithStats() {
-  try {
-    const [customers, invoices] = await Promise.all([
-      getCustomers(),
-      getInvoices(),
-    ]);
+export async function getFormattedCustomersTable() {
+  const customers = await getCustomers();
+  const invoices = await getInvoices();
 
-    // Group invoices by customer_id and calculate stats
-    const invoicesByCustomer = invoices.reduce((acc, invoice) => {
-      if (!acc[invoice.customer_id]) {
-        acc[invoice.customer_id] = [];
-      }
-      acc[invoice.customer_id].push(invoice);
-      return acc;
-    }, {} as Record<string, Invoice[]>);
+  // Create a dictionary of invoice stats grouped by customer_id
+  const invoiceStats: Record<
+    string,
+    { total_invoices: number; total_paid: number; total_pending: number }
+  > = {};
 
-    // Merge customer data with invoice stats
-    const customersWithStats = customers.map((customer) => {
-      const customerInvoices = invoicesByCustomer[customer.$id] || [];
-
-      const total_invoices = customerInvoices.length;
-      const total_pending = customerInvoices
-        .filter((inv) => inv.status === "pending")
-        .reduce((sum, inv) => sum + inv.amount, 0);
-      const total_paid = customerInvoices
-        .filter((inv) => inv.status === "paid")
-        .reduce((sum, inv) => sum + inv.amount, 0);
-
-      return {
-        ...customer,
-        total_invoices,
-        total_pending: formatCurrency(total_pending),
-        total_paid: formatCurrency(total_paid),
+  invoices.forEach((inv) => {
+    if (!invoiceStats[inv.customer_id]) {
+      invoiceStats[inv.customer_id] = {
+        total_invoices: 0,
+        total_paid: 0,
+        total_pending: 0,
       };
-    });
+    }
 
-    return customersWithStats;
-  } catch (error) {
-    console.error("Error merging customer data with invoices:", error);
-    return [];
-  }
+    invoiceStats[inv.customer_id].total_invoices += 1;
+
+    if (inv.status === "paid") {
+      invoiceStats[inv.customer_id].total_paid += inv.amount;
+    } else if (inv.status === "pending") {
+      invoiceStats[inv.customer_id].total_pending += inv.amount;
+    }
+  });
+
+  // Merge customers + invoice stats
+  const formatted = customers.map((cust) => {
+    const stats = invoiceStats[cust.$id] || {
+      total_invoices: 0,
+      total_paid: 0,
+      total_pending: 0,
+    };
+
+    return {
+      $id: cust.$id,
+      name: cust.name,
+      email: cust.email,
+      image_url: cust.image_url,
+      total_invoices: stats.total_invoices,
+      total_paid: stats.total_paid,
+      total_pending: stats.total_pending,
+    };
+  });
+
+  return formatted;
 }
 
-// =====================================================
-// Fetch Customers Pages (for Pagination)
-// =====================================================
+export async function fetchFilteredCustomers(
+  query: string,
+  currentPage: number
+) {
+  const customers = await getFormattedCustomersTable();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const q = query.toLowerCase();
+
+  const filtered = customers.filter((customer) => {
+    const values = [customer.name ?? "", customer.email ?? ""];
+    return values.some((v) => v.toLowerCase().includes(q));
+  });
+
+  return filtered.slice(offset, offset + ITEMS_PER_PAGE);
+}
+
 export async function fetchCustomersPages(query: string) {
-  try {
-    const customersWithStats = await getCustomersWithStats();
-    const q = query.toLowerCase();
+  const customers = await getFormattedCustomersTable();
+  const q = query.toLowerCase();
 
-    const filtered = customersWithStats.filter((customer) => {
-      const values = [
-        customer.name ?? "",
-        customer.email ?? "",
-        customer.total_invoices?.toString() ?? "",
-        customer.total_pending ?? "",
-        customer.total_paid ?? "",
-      ];
-      return values.some((v) => v.toLowerCase().includes(q));
-    });
+  const filtered = customers.filter((customer) => {
+    const values = [customer.name ?? "", customer.email ?? ""];
+    return values.some((v) => v.toLowerCase().includes(q));
+  });
 
-    return Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  } catch (error) {
-    console.error("Error fetching customer pages:", error);
-    return 1;
-  }
-}
-
-// =====================================================
-// Get Filtered Customers with Pagination
-// =====================================================
-export async function getFilteredCustomers(query: string, currentPage: number) {
-  try {
-    const customersWithStats = await getCustomersWithStats();
-    const q = query.toLowerCase();
-
-    const filtered = customersWithStats.filter((customer) => {
-      const values = [
-        customer.name ?? "",
-        customer.email ?? "",
-        customer.total_invoices?.toString() ?? "",
-        customer.total_pending ?? "",
-        customer.total_paid ?? "",
-      ];
-      return values.some((v) => v.toLowerCase().includes(q));
-    });
-
-    // Implement pagination
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-
-    return filtered.slice(startIndex, endIndex);
-  } catch (error) {
-    console.error("Error filtering customers:", error);
-    return [];
-  }
-}
-
-// =====================================================
-// Get Total Customers Count
-// =====================================================
-export async function getAllCustomersCount() {
-  try {
-    const customers = await getCustomers();
-    return customers.length;
-  } catch (error) {
-    console.error("Error fetching customers count:", error);
-    return 0;
-  }
+  return Math.ceil(filtered.length / ITEMS_PER_PAGE);
 }

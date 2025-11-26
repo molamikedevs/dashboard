@@ -27,7 +27,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   return (
     <form action={formAction} className="space-y-3">
-      <div className="flex-1 rounded-lg bg-custom-muted px-4 sm:px-6 pb-6 pt-8 w-full max-w-md mx-auto">
+      <div className="flex-1 rounded-lg bg-custom-muted text-custom-foreground px-4 sm:px-6 pb-6 pt-8 w-full max-w-md mx-auto">
         <h1
           className={`mb-4 text-xl sm:text-2xl text-background font-serif text-center`}>
           {mode === "login"
@@ -70,14 +70,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
             </div>
 
             <div>
-              <label
-                className="mb-2 block text-xs font-medium text-gray-900"
-                htmlFor="email">
+              <label className="mb-2 block text-xs font-medium" htmlFor="email">
                 Email
               </label>
               <div className="relative">
                 <input
-                  className="peer block w-full rounded-md border border-gray-200 py-2.5 pl-10 pr-3 text-sm outline-2 placeholder:text-gray-500"
+                  className="peer block w-full rounded-md border border-custom-muted py-2.5 pl-10 pr-3 text-sm outline-2 placeholder:text-gray-500"
                   id="email"
                   type="email"
                   name="email"
@@ -96,7 +94,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
             <div>
               <label
-                className="mb-2 block text-xs font-medium text-gray-900"
+                className="mb-2 block text-xs font-medium"
                 htmlFor="password">
                 Password
               </label>
@@ -134,9 +132,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         ) : (
           <div className="w-full space-y-4">
             <div>
-              <label
-                className="mb-2 block text-xs font-medium text-gray-900"
-                htmlFor="email">
+              <label className="mb-2 block text-xs font-medium" htmlFor="email">
                 Email
               </label>
               <div className="relative">
@@ -160,13 +156,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
             <div>
               <label
-                className="mb-2 block text-xs font-medium text-gray-900"
+                className="mb-2 block text-xs font-medium"
                 htmlFor="password">
                 Password
               </label>
               <div className="relative">
                 <input
-                  className="peer block w-full rounded-md border border-gray-200 py-2.5 pl-10 pr-10 text-sm outline-2 placeholder:text-gray-500"
+                  className="peer block w-full rounded-md border border-custom-muted py-2.5 pl-10 pr-10 text-sm outline-2 placeholder:text-gray-500"
                   id="password"
                   type={isVisible ? "text" : "password"}
                   name="password"

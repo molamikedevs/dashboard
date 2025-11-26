@@ -139,12 +139,6 @@ export async function signup(prevState: ErrorType, formData: FormData): Promise<
   }
 }
 
-// Google OAuth Login
-export async function oauthLogin(provider: string) {
-  const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`;
-  const oauthUrl = await (account as any).createOAuth2Session(provider, redirectUrl);
-  redirect(oauthUrl as unknown as string);
-}
 
 
 export async function logout() {
@@ -166,5 +160,18 @@ export async function getCurrentUser() {
     return await account.get();
   } catch {
     return null;
+  }
+}
+
+// lib/actions/action.auth.ts
+export async function oauthLogin(provider: "google") {
+  try {
+    const authUrl = `${process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT}/account/sessions/oauth2/${provider}?success=${process.env.NEXT_PUBLIC_BASE_URL}/oauth&failure=${process.env.NEXT_PUBLIC_BASE_URL}/login`;
+    
+    redirect(authUrl);
+    
+  } catch (error) {
+    console.error("OAuth login error:", error);
+    throw new Error("Failed to initiate OAuth login");
   }
 }

@@ -4,7 +4,7 @@ import { ErrorType, Invoice, LatestInvoice } from "@/types";
 import { database, appwriteConfig } from "../appwrite-config";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { CreateFormSchema, UpdateFormSchema } from "../validation";
+import { CreateInvoiceSchema, UpdateInvoiceSchema } from "../validation";
 import { getCustomersMap } from "./action.customer";
 import { isAppwriteError, ITEMS_PER_PAGE } from "../utils";
 
@@ -26,10 +26,6 @@ export async function getInvoices(): Promise<Invoice[]> {
     date: doc.date,
   }));
 }
-
-// ===============================
-// Get Invoice By ID
-// ===============================
 
 export async function getInvoiceById(id: string): Promise<Invoice | null> {
   try {
@@ -53,10 +49,6 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
     throw new Error("Unexpected error fetching invoice.");
   }
 }
-
-// ===============================
-// Latest Invoices (merged w/ customers)
-// ===============================
 
 export async function getLatestInvoices(): Promise<LatestInvoice[]> {
   const invoices = await getInvoices();
@@ -122,10 +114,6 @@ export async function fetchFilteredInvoices(
   return merged.slice(offset, offset + ITEMS_PER_PAGE);
 }
 
-// ===============================
-// Page Count
-// ===============================
-
 export async function fetchInvoicesPages(query: string) {
   const invoices = await getInvoices();
   const customers = await getCustomersMap();
@@ -146,16 +134,12 @@ export async function fetchInvoicesPages(query: string) {
   return Math.ceil(filtered.length / ITEMS_PER_PAGE);
 }
 
-// ===============================
-// Create Invoice
-// ===============================
-
 export async function createInvoice(
   _prevState: ErrorType,
   formData: FormData
-): Promise<ErrorType | Invoice> {
+): Promise<ErrorType> {
   try {
-    const parsed = CreateFormSchema.safeParse({
+    const parsed = CreateInvoiceSchema.safeParse({
       customer_id: formData.get("customer_id") as string,
       amount: formData.get("amount"),
       status: formData.get("status"),
@@ -208,16 +192,12 @@ export async function createInvoice(
   redirect("/dashboard/invoices");
 }
 
-// ===============================
-// Update Invoice
-// ===============================
-
 export async function updateInvoice(
   id: string,
   formData: FormData
 ): Promise<ErrorType | Invoice> {
   try {
-    const parsed = UpdateFormSchema.safeParse({
+    const parsed = UpdateInvoiceSchema.safeParse({
       customer_id: formData.get("customer_id"),
       amount: formData.get("amount"),
       status: formData.get("status"),
@@ -279,9 +259,6 @@ export async function updateInvoice(
 }
 
 
-// ===============================
-// Delete Invoice
-// ===============================
 
 export async function deleteInvoice(id: string): Promise<void> {
   await database.deleteDocument(appwriteConfig.databaseId, "invoice-table", id);
