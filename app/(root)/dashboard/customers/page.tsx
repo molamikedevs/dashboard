@@ -1,23 +1,23 @@
+import { Users } from "lucide-react";
+import { Suspense } from "react";
+import { CustomersTableSkeleton } from "@/components/skeletons";
+import {
+  fetchCustomersPages,
+  getCustomers,
+} from "@/lib/actions/action.customer";
+
 import CustomersTable from "@/components/customers/table";
 import Pagination from "@/components/invoices/pagination";
 import Search from "@/components/search";
-import { CustomersTableSkeleton } from "@/components/skeletons";
-import { fetchCustomersPages, getCustomers } from "@/lib/actions/action.customer";
-import { Users } from "lucide-react";
-import { Suspense } from "react";
-
+import { CreateButton } from "@/components/invoices/buttons";
 
 export const metadata = {
   title: "Customers",
 };
 
-
 interface Props {
   searchParams: Promise<{ [key: string]: string }>;
 }
-
-
-
 
 export default async function Page({ searchParams }: Props) {
   const { query = "" } = await searchParams;
@@ -26,15 +26,13 @@ export default async function Page({ searchParams }: Props) {
   const allCustomers = await getCustomers();
 
   return (
-    <div>
+    <div className="w-full">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-serif text-custom-foreground mb-2">
           Customers
         </h1>
-        <p className="text-custom-muted-foreground">
-          An overview of all your customers.
-        </p>
+        <p className="text-custom-muted-foreground">Customer management</p>
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -53,6 +51,7 @@ export default async function Page({ searchParams }: Props) {
         </div>
 
         <div className="flex space-x-3 w-full sm:w-auto">
+          {/* Search Bar */}
           <div className="relative flex-1 sm:flex-initial min-w-[300px]">
             <Search
               placeholder="Search customers..."
@@ -62,13 +61,17 @@ export default async function Page({ searchParams }: Props) {
               iconPosition="left"
             />
           </div>
+
+          {/* Add Customer Button */}
+          <CreateButton
+            href="/dashboard/customers/create"
+            label="Create Customer"
+          />
         </div>
       </div>
-      
       <Suspense key={query + currentPage} fallback={<CustomersTableSkeleton />}>
         <CustomersTable query={query} currentPage={currentPage} />
       </Suspense>
-      
       <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />
       </div>

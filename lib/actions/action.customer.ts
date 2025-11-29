@@ -1,9 +1,13 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { ID } from "appwrite";
 import { Customer } from "@/types";
-import { appwriteConfig, database } from "../appwrite-server";
+import { appwriteConfig, database, storage } from "../appwrite-server";
 import { getInvoices } from "./action.invoice";
 import { ITEMS_PER_PAGE } from "../utils";
+import { CreateCustomerSchema } from "../validation";
+import { redirect } from "next/navigation";
 
 export async function getCustomersMap() {
   try {
@@ -115,4 +119,123 @@ export async function fetchCustomersPages(query: string) {
   });
 
   return Math.ceil(filtered.length / ITEMS_PER_PAGE);
+}
+
+// Upload image to Appwrite Storage and return public view URL
+async function uploadImage(file: File): Promise<string | null> {
+  try {
+    // Directly pass the File object to Appwrite (supported by SDK in Node 18+ / Next.js runtime)
+    const result = await storage.createFile(
+      appwriteConfig.storageId,
+      ID.unique(),
+      file
+    );
+    const fileUrl = `https://fra.cloud.appwrite.io/v1/storage/buckets/${appwriteConfig.storageId}/files/${result.$id}/view?project=${appwriteConfig.projectId}`;
+    return fileUrl;
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    return null;
+  }
+}
+
+export async function createCustomer(formData: FormData) {
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const imageFile = formData.get("image_url") as File | null;
+
+  // Validate required fields early (image_url optional)
+  const parsed = CreateCustomerSchema.safeParse({ name, email, image_url: "" });
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: parsed.error.issues.map((i) => i.message).join("; "),
+    };
+  }
+
+  try {
+    let imageUrl: string | null = null;
+    // Upload only if we truly received a File with size
+    if (
+      imageFile &&
+      typeof imageFile === "object" &&
+      "arrayBuffer" in imageFile &&
+      (imageFile as File).size > 0
+    ) {
+      const uploadedUrl = await uploadImage(imageFile as File);
+      if (uploadedUrl) imageUrl = uploadedUrl;
+    }
+
+    const documentData = {
+      name,
+      email,
+      image_url: imageUrl,
+    } as const;
+
+    await database.createDocument(
+      appwriteConfig.databaseId,
+      "customers",
+      ID.unique(),
+      documentData
+    );
+
+    revalidatePath("/dashboard/customers");
+    return { success: true, message: "Customer created successfully!" };
+  } catch (error) {
+    console.error("Error creating customer:", error);
+    return { success: false, message: "Failed to create customer" };
+  }
+}
+
+export async function deleteCustomer(id: string): Promise<void> {
+  await database.deleteDocument(appwriteConfig.databaseId, "customers", id);
+
+  revalidatePath("/dashboard/customers");
+  redirect("/dashboard/customers");
+}
+
+export async function updateCustomer(id: string, formData: FormData) {
+  try {
+    const { name, email, image_url } = Object.fromEntries(formData);
+
+    // Validate data
+    if (!name || !email || !image_url) {
+      return { message: "All fields are required." };
+    }
+
+    // Update customer in Appwrite
+    await database.updateDocument(appwriteConfig.databaseId, "customers", id, {
+      name: name.toString().trim(),
+      email: email.toString().trim(),
+      image_url: image_url.toString().trim(),
+    });
+
+    // Revalidate the customers path
+    revalidatePath("/dashboard/customers");
+    redirect("/dashboard/customers");
+
+    return { message: "Customer updated successfully." };
+  } catch (err: unknown) {
+    console.error("Database Error:", err);
+    return { message: "Failed to update customer." };
+  }
+}
+
+export async function getCustomerById(id: string) {
+  try {
+    const doc = await database.getDocument(
+      appwriteConfig.databaseId,
+      "customers",
+      id
+    );
+
+    return {
+      $id: doc.$id,
+      image_url: doc.image_url,
+      name: doc.name,
+      email: doc.email,
+    };
+  } catch (err: unknown) {
+    console.error("Database Error:", err);
+    throw new Error("Unexpected error fetching invoice.");
+  }
 }

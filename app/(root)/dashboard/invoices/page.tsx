@@ -5,8 +5,8 @@ import { fetchInvoicesPages, getInvoices } from "@/lib/actions/action.invoice";
 import Search from "@/components/search";
 import InvoicesTable from "@/components/invoices/table";
 import Pagination from "@/components/invoices/pagination";
-import { CreateInvoice } from "@/components/invoices/buttons";
 import { Receipt } from "lucide-react";
+import { CreateButton } from "@/components/invoices/buttons";
 
 export const metadata = {
   title: "Invoices",
@@ -53,8 +53,8 @@ export default async function Page({ searchParams }: Props) {
           {/* Search Bar */}
           <div className="relative flex-1 sm:flex-initial min-w-[300px]">
             <Search
-              placeholder="Search customers..."
-              route="/dashboard/customers"
+              placeholder="Search invoices..."
+              route="/dashboard/invoices"
               imgSrc="/icons/search.svg"
               otherClasses="flex-1"
               iconPosition="left"
@@ -62,7 +62,10 @@ export default async function Page({ searchParams }: Props) {
           </div>
 
           {/* Add Customer Button */}
-          <CreateInvoice />
+          <CreateButton
+            href="/dashboard/invoices/create"
+            label="Create Invoice"
+          />
         </div>
       </div>
       <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>

@@ -1,8 +1,11 @@
 import Image from 'next/image';
-import { fetchFilteredInvoices } from "@/lib/actions/action.invoice";
-import { DeleteInvoice, UpdateInvoice } from './buttons';
+import {
+  deleteInvoice,
+  fetchFilteredInvoices,
+} from "@/lib/actions/action.invoice";
 import { formatCurrency, formatDateToLocal } from '@/lib/utils';
 import InvoiceStatus from './status';
+import { DeleteButton, UpdateButton } from "./buttons";
 
 export default async function InvoicesTable({
   query,
@@ -46,8 +49,13 @@ export default async function InvoicesTable({
                     <p>{formatDateToLocal(invoice.date)}</p>
                   </div>
                   <div className="flex justify-end gap-2">
-                    <UpdateInvoice id={invoice.id} />
-                    <DeleteInvoice id={invoice.id} />
+                    <UpdateButton
+                      href={`/dashboard/invoices/${invoice.id}/edit`}
+                    />
+                    <DeleteButton
+                      id={invoice.id}
+                      deleteAction={deleteInvoice}
+                    />
                   </div>
                 </div>
               </div>
@@ -107,8 +115,13 @@ export default async function InvoicesTable({
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <UpdateInvoice id={invoice.id} />
-                      <DeleteInvoice id={invoice.id} />
+                      <UpdateButton
+                        href={`/dashboard/invoices/${invoice.id}/edit`}
+                      />
+                      <DeleteButton
+                        id={invoice.id}
+                        deleteAction={deleteInvoice}
+                      />
                     </div>
                   </td>
                 </tr>

@@ -1,38 +1,72 @@
 import Link from 'next/link';
-import { Plus, SquarePen, Trash2 } from 'lucide-react';
-import { deleteInvoice } from "@/lib/actions/action.invoice";
+import { Plus, SquarePen, Trash2 } from "lucide-react";
 
-export function CreateInvoice() {
+interface CreateButtonProps {
+  href: string;
+  label: string;
+  className?: string;
+}
+
+export function CreateButton({
+  href,
+  label,
+  className = "",
+}: CreateButtonProps) {
   return (
     <Link
-      href="/dashboard/invoices/create"
-      className="flex h-10 items-center rounded-lg bg-blue-600 text-white px-4 text-sm font-medium transition-colors hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-      <span className="hidden md:block">Create Invoice</span>{" "}
+      href={href}
+      className={`flex h-10 items-center rounded-lg bg-blue-600 text-white px-4 text-sm font-medium transition-colors hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${className}`}>
+      <span className="hidden md:block">{label}</span>
       <Plus className="h-5 md:ml-4" />
     </Link>
   );
 }
 
-export function UpdateInvoice({ id }: { id: string }) {
+interface UpdateButtonProps {
+  href: string;
+  ariaLabel?: string;
+  className?: string;
+}
+
+export function UpdateButton({
+  href,
+  ariaLabel = "Edit",
+  className = "",
+}: UpdateButtonProps) {
   return (
     <Link
-      href={`/dashboard/invoices/${id}/edit`}
-      className="rounded-md border p-2">
+      href={href}
+      className={`rounded-md border p-2 ${className}`}
+      aria-label={ariaLabel}>
       <SquarePen className="w-5" />
     </Link>
   );
 }
 
-export function DeleteInvoice({ id }: { id: string }) {
-  const deleteInvoiceWithId = deleteInvoice.bind(null, id);
+interface DeleteButtonProps {
+  id: string;
+  deleteAction: (id: string) => Promise<void>;
+  ariaLabel?: string;
+  className?: string;
+}
+
+export function DeleteButton({
+  id,
+  deleteAction,
+  ariaLabel = "Delete",
+  className,
+}: DeleteButtonProps) {
+  const handleDelete = deleteAction.bind(null, id);
+
   return (
-    <>
-      <form action={deleteInvoiceWithId}>
-        <button type="submit" className="rounded-md border p-2">
-          <span className="sr-only">Delete</span>
-          <Trash2 className="w-5" />
-        </button>
-      </form>
-    </>
+    <form action={handleDelete}>
+      <button
+        type="submit"
+        className={`rounded-md border p-2 ${className}`}
+        aria-label={ariaLabel}>
+        <span className="sr-only">{ariaLabel}</span>
+        <Trash2 className="w-5" />
+      </button>
+    </form>
   );
 }
