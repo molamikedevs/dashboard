@@ -1,14 +1,3 @@
-// This file contains type definitions for your data.
-// It describes the shape of the data, and what data type each property should accept.
-// For simplicity of teaching, we're manually defining these types.
-// However, these types are generated automatically if you're using an ORM such as Prisma.
-export type User = {
-  $id: string;
-  name: string;
-  email: string;
-  password: string;
-};
-
 export type Customer = {
   $id: string;
   name: string;
@@ -98,14 +87,25 @@ export type InvoiceForm = {
   message?: string | null;
 };
 
-export type ErrorType = {
-  success: boolean;
-  errors: Record<string, string> | null;
-  values: Record<string, string> | null;
-};
+export interface AppwriteError extends Error {
+  code?: number;
+  type?: string;
+  response?: {
+    message?: string;
+  };
+}
 
+export interface AuthErrorResponse {
+  success: false;
+  error: string;
+}
+// Response types
+export interface AuthSuccessResponse<T = Models.Session | Models.User> {
+  success: true;
+  session?: Models.Session;
+  user?: Models.User;
+}
 
-
-
-
-
+export type AuthResponse<T = Models.Session | Models.User> =
+  | AuthSuccessResponse<T>
+  | AuthErrorResponse;

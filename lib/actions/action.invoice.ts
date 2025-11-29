@@ -1,7 +1,7 @@
 "use server";
 
-import { ErrorType, Invoice, LatestInvoice } from "@/types";
-import { database, appwriteConfig } from "../appwrite-config";
+import { Invoice, LatestInvoice } from "@/types";
+import { database, appwriteConfig } from "../appwrite-server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { CreateInvoiceSchema, UpdateInvoiceSchema } from "../validation";
@@ -134,129 +134,57 @@ export async function fetchInvoicesPages(query: string) {
   return Math.ceil(filtered.length / ITEMS_PER_PAGE);
 }
 
-export async function createInvoice(
-  _prevState: ErrorType,
-  formData: FormData
-): Promise<ErrorType> {
-  try {
-    const parsed = CreateInvoiceSchema.safeParse({
-      customer_id: formData.get("customer_id") as string,
-      amount: formData.get("amount"),
-      status: formData.get("status"),
-    });
+export async function createInvoice(formData: FormData) {
+  const parsed = CreateInvoiceSchema.parse({
+    customer_id: formData.get("customer_id") as string,
+    amount: formData.get("amount"),
+    status: formData.get("status"),
+  });
 
-    if (!parsed.success) {
-      const errors: Record<string, string> = {};
-      parsed.error.errors.forEach((err) => {
-        if (err.path?.[0]) errors[err.path[0]] = err.message;
-      });
+  const { customer_id, amount, status } = parsed;
 
-      return {
-        success: false,
-        errors,
-        values: {
-          customer_id: String(formData.get("customer_id") ?? ""),
-          amount: String(formData.get("amount") ?? ""),
-          status: String(formData.get("status") ?? ""),
-        },
-      };
+  await database.createDocument(
+    appwriteConfig.databaseId,
+    "invoice-table",
+    "unique()",
+    {
+      customer_id,
+      amount: Number(amount) * 100,
+      status,
+      date: new Date().toISOString().split("T")[0],
     }
-
-    const { customer_id, amount, status } = parsed.data;
-
-    await database.createDocument(
-      appwriteConfig.databaseId,
-      "invoice-table",
-      "unique()",
-      {
-        customer_id,
-        amount: amount * 100,
-        status,
-        date: new Date().toISOString().split("T")[0],
-      }
-    );
-  } catch (err) {
-    console.error("Failed to create invoice:", err);
-    return {
-      success: false,
-      errors: { general: "Something went wrong. Try again later." },
-      values: {
-        customer_id: String(formData.get("customer_id") ?? ""),
-        amount: String(formData.get("amount") ?? ""),
-        status: String(formData.get("status") ?? ""),
-      },
-    };
-  }
+  );
 
   revalidatePath("/dashboard/invoices");
   redirect("/dashboard/invoices");
 }
 
-export async function updateInvoice(
-  id: string,
-  formData: FormData
-): Promise<ErrorType | Invoice> {
-  try {
-    const parsed = UpdateInvoiceSchema.safeParse({
-      customer_id: formData.get("customer_id"),
-      amount: formData.get("amount"),
-      status: formData.get("status"),
-      date: formData.get("date") || new Date().toISOString().split("T")[0],
-    });
+export async function updateInvoice(id: string, formData: FormData) {
+  const parsed = UpdateInvoiceSchema.parse({
+    customer_id: formData.get("customer_id"),
+    amount: formData.get("amount"),
+    status: formData.get("status"),
+    date: formData.get("date") || new Date().toISOString().split("T")[0],
+  });
 
-    if (!parsed.success) {
-      const errors: Record<string, string> = {};
-      parsed.error.errors.forEach((err) => {
-        if (err.path?.[0]) errors[err.path[0]] = err.message;
-      });
+  const { customer_id, amount, status, date } = parsed;
 
-      return {
-        success: false,
-        errors,
-        values: {
-          customer_id: String(formData.get("customer_id") ?? ""),
-          amount: String(formData.get("amount") ?? ""),
-          status: String(formData.get("status") ?? ""),
-        },
-      };
+  await database.updateDocument(
+    appwriteConfig.databaseId,
+    "invoice-table",
+    id,
+    {
+      customer_id,
+      amount: Number(amount) * 100,
+      status,
+      date,
     }
+  );
 
-    const { customer_id, amount, status, date } = parsed.data;
-
-    await database.updateDocument(
-      appwriteConfig.databaseId,
-      "invoice-table",
-      id,
-      {
-        amount: amount * 100,
-        status,
-        customer_id,
-        date,
-      }
-    );
-
-    revalidatePath("/dashboard/invoices");
-
-    // Throw the redirect to properly interrupt execution
-    throw redirect("/dashboard/invoices");
-  } catch (err) {
-    // Check if this is a redirect error
-    if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
-      throw err; // Re-throw redirect errors
-    }
-
-    console.error("Failed to update invoice:", err);
-    return {
-      success: false,
-      errors: { general: "Unable to update invoice at this time." },
-      values: {
-        customer_id: String(formData.get("customer_id") ?? ""),
-        amount: String(formData.get("amount") ?? ""),
-        status: String(formData.get("status") ?? ""),
-      },
-    };
-  }
+  revalidatePath("/dashboard/invoices");
+  redirect("/dashboard/invoices");
 }
+
 
 
 

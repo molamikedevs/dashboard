@@ -4,7 +4,7 @@ export default function AuthSwitch({ mode }: { mode: "login" | "signup" }) {
   return (
     <>
       {mode === "login" ? (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-500">
           Don&apos;t have an account?{" "}
           <Link
             href="sign-up"
@@ -13,7 +13,7 @@ export default function AuthSwitch({ mode }: { mode: "login" | "signup" }) {
           </Link>
         </p>
       ) : (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-500">
           Already have an account?{" "}
           <Link
             href="login"

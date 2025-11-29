@@ -1,18 +1,20 @@
-import { useFormStatus } from "react-dom";
 import { Button } from "./button";
 import { ArrowRightIcon } from "lucide-react";
 
-export default function SubmitButton({ mode }: { mode: "login" | "signup" }) {
-  const { pending } = useFormStatus();
-  
+export default function SubmitButton({
+  mode,
+  isLoading = false,
+}: {
+  mode: "login" | "signup";
+  isLoading?: boolean;
+}) {
   return (
-    <Button 
-      className="w-full py-2.5 text-sm" 
+    <Button
+      className="w-full py-2.5 text-sm"
       type="submit"
-      disabled={pending}
-      aria-disabled={pending}
-    >
-      {pending ? (
+      disabled={isLoading}
+      aria-disabled={isLoading}>
+      {isLoading ? (
         "Processing..."
       ) : (
         <>

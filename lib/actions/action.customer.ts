@@ -1,7 +1,7 @@
 "use server";
 
 import { Customer } from "@/types";
-import { appwriteConfig, database } from "../appwrite-config";
+import { appwriteConfig, database } from "../appwrite-server";
 import { getInvoices } from "./action.invoice";
 import { ITEMS_PER_PAGE } from "../utils";
 

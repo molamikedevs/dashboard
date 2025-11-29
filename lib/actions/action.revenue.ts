@@ -1,7 +1,7 @@
 "use server";
 
 import { Revenue } from "@/types";
-import { appwriteConfig, database } from "../appwrite-config";
+import { appwriteConfig, database } from "../appwrite-server";
 
 // =====================================================
 // Fetch Revenue Data

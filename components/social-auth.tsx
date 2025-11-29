@@ -1,39 +1,55 @@
 "use client";
 
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "./button";
-import { oauthLogin } from "@/lib/actions/action.auth";
-import { useSearchParams } from "next/navigation";
+import { loginWithGoogle } from "@/lib/appwrite-client";
 
-const SocialAuth = () => {
-  const searchParams = useSearchParams();
-  const error = searchParams.get("error");
+export default function SocialAuth() {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleGoogleLogin = async () => {
-    await oauthLogin("google");
+  const handleGoogleLogin = async (): Promise<void> => {
+    setIsLoading(true);
+    try {
+      await loginWithGoogle();
+    } catch (error: unknown) {
+      console.error("Google login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="mt-10 flex flex-wrap gap-2.5">
-      {error === "oauth_failed" && (
-        <div className="w-full text-center text-red-500 text-sm mb-2">
-          Google authentication failed. Please try again.
+    <div className="space-y-3">
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300" />
         </div>
-      )}
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-custom-muted px-2 text-gray-500">
+            Or continue with
+          </span>
+        </div>
+      </div>
+
       <Button
-        className="w-full justify-center bg-gray-800 hover:bg-gray-800"
-        onClick={handleGoogleLogin}>
-        <Image
-          src="/icons/google.svg"
-          alt="Google Logo"
-          width={20}
-          height={20}
-          className="mr-2.5 object-contain"
-        />
-        <span>Log in with Google</span>
+        type="button"
+        onClick={handleGoogleLogin}
+        disabled={isLoading}
+        className="flex w-full items-center justify-center gap-3 rounded-md bg-custom-muted px-3 py-2 text-sm font-semibold  shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+        {isLoading ? (
+          <Loader2 className="w-5 h-5 animate-spin" />
+        ) : (
+          <Image
+            src="/icons/google.svg"
+            alt="Google logo"
+            width={20}
+            height={20}
+          />
+        )}
+        Continue with Google
       </Button>
     </div>
   );
-};
-
-export default SocialAuth;
+}
