@@ -1,4 +1,4 @@
-import { Button } from "./button";
+import { Button } from "../common/button";
 import { ArrowRightIcon } from "lucide-react";
 
 export default function SubmitButton({

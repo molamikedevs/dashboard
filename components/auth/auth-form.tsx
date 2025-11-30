@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AtSign, CircleUser, Eye, EyeOff, Lock } from "lucide-react";
 
@@ -8,8 +8,8 @@ import AuthSwitch from "./auth-switch";
 import SubmitButton from "./submit-button";
 import SocialAuth from "./social-auth";
 import useFormValidation from "@/hooks/use-form-validation";
-import ErrorInput from "./error-input";
-import { getCurrentUser, login, signup } from "@/lib/actions/action.auth";
+import ErrorInput from "../common/error-input";
+import { login, signup } from "@/lib/actions/action.auth";
 
 interface AuthFormProps {
   mode: "login" | "signup";
@@ -59,16 +59,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
     setIsSubmitting,
   } = useFormValidation(initialValues, validationRules);
 
-  // Check if user is already logged in
-  useEffect(() => {
-    const checkAuth = async (): Promise<void> => {
-      const result = await getCurrentUser();
-      if (result) {
-        router.push("/dashboard");
-      }
-    };
-    checkAuth();
-  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -130,7 +120,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         {mode === "signup" && (
           <div className="mb-4">
             <label
-              className="mb-2 block text-xs font-medium text-gray-900"
+              className="mb-2 block text-xs font-medium"
               htmlFor="username">
               Username
             </label>

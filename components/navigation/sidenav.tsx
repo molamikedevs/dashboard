@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import AcmeLogo from "../logo";
+import AcmeLogo from "../common/logo";
 import NavLinks from "./nav-links";
-import LogoutForm from "../logout-form";
-import ThemeSwitch from "../theme-switch";
+import LogoutForm from "../auth/logout-form";
+import ThemeSwitch from "../common/theme-switch";
 
 export default function SideNav() {
   return (

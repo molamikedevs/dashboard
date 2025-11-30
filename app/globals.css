@@ -1,4 +1,4 @@
-/* globals.css */
+
 @import "tailwindcss";
 
 :root {
@@ -9,9 +9,9 @@
   --card-foreground: #171717;
   --primary: #0070F3;
   --primary-foreground: #ffffff;
-  --muted: #f9fafb; /* gray-50 */
-  --muted-foreground: #6b7280; /* gray-500 */
-  --border: #e5e7eb; /* gray-200 */
+  --muted: #f9fafb;
+  --muted-foreground: #6b7280;
+  --border: #e5e7eb;
 }
 
 .dark {
@@ -22,13 +22,13 @@
   --card-foreground: #ededed;
   --primary: #3b82f6;
   --primary-foreground: #ffffff;
-  --muted: #262626; /* gray-800 */
-  --muted-foreground: #a3a3a3; /* gray-400 */
-  --border: #404040; /* gray-700 */
-  --border-muted: #6b7280; /* gray-700 variant */
+  --muted: #262626; 
+  --muted-foreground: #a3a3a3; 
+  --border: #404040; 
+  --border-muted: #6b7280; 
 }
 
-/* Tailwind v4 theme definitions using CSS variables */
+
 @theme inline {
   --background: var(--background);
   --foreground: var(--foreground);
@@ -41,7 +41,7 @@
   --font-serif: "Lusitana", serif;
 
   /* Grid Template Columns */
-  --grid-template-columns-13: repeat(13, minmax(0, 1fr));
+  /* --grid-template-columns-13: repeat(13, minmax(0, 1fr)); */
 
   /* Keyframes */
   @keyframes shimmer {

@@ -15,9 +15,9 @@ export default async function EditCustomer({ params }: Props) {
   const { id } = await params;
   const customer = await getCustomerById(id);
 
-  if (!customer) {
-    notFound();
-  }
+ if (!customer) {
+   notFound();
+ }
 
   return (
     <main>

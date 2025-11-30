@@ -4,8 +4,8 @@ import Link from "next/link";
 import { Check, Clock, Receipt, User } from "lucide-react";
 import { updateInvoice } from "@/lib/actions/action.invoice";
 import { CustomerField, Invoice } from "@/types";
-import { Button } from "@/components/button";
-import ErrorInput from "../error-input";
+import { Button } from "@/components/common/button";
+import ErrorInput from "../common/error-input";
 import useFormValidation from "@/hooks/use-form-validation";
 
 export default function EditInvoiceForm({

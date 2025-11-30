@@ -1,12 +1,12 @@
 import { Suspense } from "react";
-import { InvoicesTableSkeleton } from "@/components/skeletons";
+import { InvoicesTableSkeleton } from "@/components/common/skeletons";
 import { fetchInvoicesPages, getInvoices } from "@/lib/actions/action.invoice";
 
-import Search from "@/components/search";
-import InvoicesTable from "@/components/invoices/table";
-import Pagination from "@/components/invoices/pagination";
+import Search from "@/components/common/search";
+import InvoicesTable from "@/components/invoices/invoice-table";
+import Pagination from "@/components/common/pagination";
 import { Receipt } from "lucide-react";
-import { CreateButton } from "@/components/invoices/buttons";
+import { CreateButton } from "@/components/common/create-button";
 
 export const metadata = {
   title: "Invoices",

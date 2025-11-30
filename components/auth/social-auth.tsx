@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
-import { Button } from "./button";
+import { Button } from "../common/button";
 import { loginWithGoogle } from "@/lib/appwrite-client";
 
 export default function SocialAuth() {

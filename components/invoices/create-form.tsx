@@ -4,10 +4,10 @@
 import Link from "next/link";
 import { Check, Clock, Receipt, User } from "lucide-react";
 import { createInvoice } from "@/lib/actions/action.invoice";
-import { Button } from "../button";
+import { Button } from "../common/button";
 import { Customer } from "@/types";
 import useFormValidation from "@/hooks/use-form-validation";
-import ErrorInput from "../error-input";
+import ErrorInput from "../common/error-input";
 
 export default function CreateInvoiceForm({
   customers,

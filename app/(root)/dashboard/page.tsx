@@ -8,7 +8,7 @@ import {
   CardsSkeleton,
   LatestInvoicesSkeleton,
   RevenueChartSkeleton,
-} from "@/components/skeletons";
+} from "@/components/common/skeletons";
 
 export const metadata = {
   title: "Dashboard",

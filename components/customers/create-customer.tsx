@@ -4,17 +4,19 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Mail, User, Upload, X } from "lucide-react";
-import { Button } from "../button";
+import { Button } from "../common/button";
 import Image from "next/image";
 
 import useFormValidation from "@/hooks/use-form-validation";
-import ErrorInput from "../error-input";
+import ErrorInput from "../common/error-input";
 import { createCustomer } from "@/lib/actions/action.customer";
+import { useRouter } from "next/navigation";
 
 export default function CreateCustomerForm() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const router = useRouter();
 
   const initialValues = {
     name: "",
@@ -44,20 +46,20 @@ export default function CreateCustomerForm() {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
+      if (!file.type.startsWith("image/")) {
+        alert("Please select an image file");
         return;
       }
 
       // Validate file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
+        alert("File size must be less than 5MB");
         return;
       }
 
       setFileName(file.name);
       setSelectedFile(file);
-      
+
       // Create preview URL
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
@@ -76,15 +78,15 @@ export default function CreateCustomerForm() {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    
+
     if (file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Please drop an image file');
+      if (!file.type.startsWith("image/")) {
+        alert("Please drop an image file");
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
+        alert("File size must be less than 5MB");
         return;
       }
 
@@ -112,22 +114,22 @@ export default function CreateCustomerForm() {
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("email", values.email);
-      
+
       // Append the file if selected
       if (selectedFile) {
         formData.append("image_url", selectedFile);
       }
 
       const result = await createCustomer(formData);
-      
+
       if (result?.success) {
         // Reset form on success
         setPreviewUrl(null);
         setFileName("");
         setSelectedFile(null);
-        
+
         // Redirect after successful creation
-        window.location.href = '/dashboard/customers?success=true';
+        router.push("/dashboard/customers?success=true");
       }
     } catch (error) {
       console.error("Error creating customer:", error);
@@ -157,7 +159,9 @@ export default function CreateCustomerForm() {
                 errors.name
                   ? "border-red-500 bg-red-50"
                   : "border-custom-border bg-custom-muted text-custom-foreground"
-              } placeholder:text-gray-500 ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+              } placeholder:text-gray-500 ${
+                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               required
               minLength={2}
               maxLength={100}
@@ -196,18 +200,19 @@ export default function CreateCustomerForm() {
           <label className="mb-2 block text-sm font-medium">
             Profile Image (Optional)
           </label>
-          
+
           {/* Drag & Drop Area */}
           <div
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-              previewUrl 
-                ? 'border-blue-500 bg-custom-muted' 
-                : 'border-gray-300 hover:border-gray-400 bg-custom-muted'
+              previewUrl
+                ? "border-blue-500 bg-custom-muted"
+                : "border-gray-300 hover:border-gray-400 bg-custom-muted"
             } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
-            onClick={() => !isSubmitting && document.getElementById('image-upload')?.click()}
-          >
+            onClick={() =>
+              !isSubmitting && document.getElementById("image-upload")?.click()
+            }>
             <input
               id="image-upload"
               name="image"
@@ -217,7 +222,7 @@ export default function CreateCustomerForm() {
               disabled={isSubmitting}
               className="hidden"
             />
-            
+
             {previewUrl ? (
               <div className="flex flex-col items-center">
                 <div className="relative">
@@ -235,8 +240,7 @@ export default function CreateCustomerForm() {
                         e.stopPropagation();
                         handleRemoveImage();
                       }}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                    >
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors">
                       <X className="w-4 h-4" />
                     </button>
                   )}
@@ -265,12 +269,11 @@ export default function CreateCustomerForm() {
           href="/dashboard/customers"
           className={`flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200 ${
             isSubmitting ? "pointer-events-none opacity-50" : ""
-          }`}
-        >
+          }`}>
           Cancel
         </Link>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Creating...' : 'Create Customer'}
+          {isSubmitting ? "Creating..." : "Create Customer"}
         </Button>
       </div>
     </form>

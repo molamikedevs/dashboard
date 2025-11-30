@@ -1,4 +1,4 @@
-import AcmeLogo from "@/components/logo";
+import AcmeLogo from "@/components/common/logo";
 
 export default function AuthLayout({
   children,

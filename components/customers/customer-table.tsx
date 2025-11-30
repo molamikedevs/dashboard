@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { formatCurrency } from "@/lib/utils";
 import { fetchFilteredCustomers } from "@/lib/actions/action.customer";
-import { CustomerActions } from "../customer-action";
+import { ActionButtons } from "../common/action-buttons";
+import clsx from "clsx";
 
 export default async function CustomersTable({
   query,
@@ -23,10 +24,18 @@ export default async function CustomersTable({
           <div className="inline-block min-w-full align-middle">
             <div className="overflow-hidden rounded-md bg-custom-muted p-2 md:pt-0">
               <div className="md:hidden">
-                {customers?.map((customer) => (
+                {customers?.map((customer, i) => (
                   <div
                     key={customer.$id}
-                    className="mb-2 w-full rounded-md bg-custom-background p-4">
+                    className={clsx(
+                      "mb-2 w-full rounded-md bg-custom-background p-4",
+                      {
+                        "border-t": i !== 0,
+                      }
+                    )}
+                    style={{
+                      borderColor: i !== 0 ? "var(--border)" : "transparent",
+                    }}>
                     <div className="flex items-center justify-between border-b pb-4">
                       <div className="w-full">
                         <div className="mb-2 flex items-center justify-between">
@@ -41,30 +50,40 @@ export default async function CustomersTable({
                             <p className="font-medium">{customer.name}</p>
                           </div>
                           <div className="relative z-20">
-                            <CustomerActions customerId={customer.$id} />
+                            <ActionButtons
+                              id={customer.$id}
+                              type="customer"
+                              editPath={`/dashboard/customers/${customer.$id}/edit`}
+                            />
                           </div>
                         </div>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-custom-muted-foreground">
                           {customer.email}
                         </p>
                       </div>
                     </div>
-                    <div className="flex w-full items-center justify-between border-b py-5">
+                    <div
+                      className="flex w-full items-center justify-between border-b py-5"
+                      style={{ borderColor: "var(--border)" }}>
                       <div className="flex w-1/2 flex-col">
-                        <p className="text-xs text-gray-500">Pending</p>
+                        <p className="text-xs text-custom-muted-foreground">
+                          Pending
+                        </p>
                         <p className="font-medium">
                           {formatBalance(customer.total_pending)}
                         </p>
                       </div>
                       <div className="flex w-1/2 flex-col">
-                        <p className="text-xs text-gray-500">Paid</p>
+                        <p className="text-xs text-custom-muted-foreground">
+                          Paid
+                        </p>
                         <p className="font-medium">
                           {formatBalance(customer.total_paid)}
                         </p>
                       </div>
                     </div>
                     <div className="pt-4 text-sm">
-                      <p className="text-gray-500">
+                      <p className="text-custom-muted-foreground">
                         {customer.total_invoices} invoices
                       </p>
                     </div>
@@ -105,40 +124,61 @@ export default async function CustomersTable({
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-custom-border bg-custom-background">
-                  {customers.map((customer) => (
+                <tbody className="bg-custom-background">
+                  {customers.map((customer, i) => (
                     <tr
                       key={customer.$id}
-                      className="hover:bg-blue-400 transition-colors">
-                      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-custom-foreground sm:pl-6 border-r border-custom-border">
+                      className={clsx({
+                        "border-t": i !== 0,
+                      })}
+                      style={{
+                        borderColor: i !== 0 ? "var(--border)" : "transparent",
+                      }}>
+                      <td
+                        className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-custom-foreground sm:pl-6 border-r"
+                        style={{ borderColor: "var(--border)" }}>
                         <div className="flex items-center gap-3">
-                          <Image
-                            src={customer.image_url}
-                            className="rounded-full"
-                            alt={`${customer.name}'s profile picture`}
-                            width={32}
-                            height={32}
-                          />
+                          <div className="w-8 h-8 shrink-0">
+                            <Image
+                              src={customer.image_url}
+                              className="rounded-full object-cover w-full h-full"
+                              alt={`${customer.name}'s profile picture`}
+                              width={28}
+                              height={28}
+                            />
+                          </div>
                           <p className="font-medium">{customer.name}</p>
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-sm text-custom-foreground border-r border-custom-border">
+                      <td
+                        className="whitespace-nowrap px-4 py-4 text-sm text-custom-foreground border-r"
+                        style={{ borderColor: "var(--border)" }}>
                         {customer.email}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-sm text-custom-foreground text-center border-r border-custom-border">
+                      <td
+                        className="whitespace-nowrap px-4 py-4 text-sm text-custom-foreground text-center border-r"
+                        style={{ borderColor: "var(--border)" }}>
                         <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                           {customer.total_invoices}
                         </span>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-center border-r border-custom-border">
+                      <td
+                        className="whitespace-nowrap px-4 py-4 text-sm font-medium text-center border-r"
+                        style={{ borderColor: "var(--border)" }}>
                         <span>{formatBalance(customer.total_pending)}</span>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-sm font-medium text-center border-r border-custom-border">
+                      <td
+                        className="whitespace-nowrap px-4 py-4 text-sm font-medium text-center border-r"
+                        style={{ borderColor: "var(--border)" }}>
                         <span>{formatBalance(customer.total_paid)}</span>
                       </td>
                       <td className="whitespace-nowrap px-4 py-4 text-sm text-center">
                         <div className="flex justify-center gap-2">
-                          <CustomerActions customerId={customer.$id} />
+                          <ActionButtons
+                            id={customer.$id}
+                            type="customer"
+                            editPath={`/dashboard/customers/${customer.$id}/edit`}
+                          />
                         </div>
                       </td>
                     </tr>

@@ -1,15 +1,15 @@
 import { Users } from "lucide-react";
 import { Suspense } from "react";
-import { CustomersTableSkeleton } from "@/components/skeletons";
+import { CustomersTableSkeleton } from "@/components/common/skeletons";
 import {
   fetchCustomersPages,
   getCustomers,
 } from "@/lib/actions/action.customer";
 
-import CustomersTable from "@/components/customers/table";
-import Pagination from "@/components/invoices/pagination";
-import Search from "@/components/search";
-import { CreateButton } from "@/components/invoices/buttons";
+import CustomersTable from "@/components/customers/customer-table";
+import Pagination from "@/components/common/pagination";
+import Search from "@/components/common/search";
+import { CreateButton } from "@/components/common/create-button";
 
 export const metadata = {
   title: "Customers",

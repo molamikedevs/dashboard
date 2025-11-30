@@ -11,7 +11,7 @@ export function ThemeProvider({
   return (
     <NextThemesProvider {...props}>
       {children}
-      <ToastContainer position="bottom-right" />
+      <ToastContainer position="bottom-right" theme="dark" />
     </NextThemesProvider>
   );
 }

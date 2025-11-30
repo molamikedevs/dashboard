@@ -5,10 +5,11 @@ import { ID } from "appwrite";
 import { Customer } from "@/types";
 import { appwriteConfig, database, storage } from "../appwrite-server";
 import { getInvoices } from "./action.invoice";
-import { ITEMS_PER_PAGE } from "../utils";
+import { isAppwriteError, ITEMS_PER_PAGE } from "../utils";
 import { CreateCustomerSchema } from "../validation";
 import { redirect } from "next/navigation";
 
+// Fetch a map of customer IDs to customer data
 export async function getCustomersMap() {
   try {
     const response = await database.listDocuments(
@@ -24,6 +25,7 @@ export async function getCustomersMap() {
   }
 }
 
+// Fetch all customers
 export async function getCustomers(): Promise<Customer[]> {
   try {
     const response = await database.listDocuments(
@@ -43,6 +45,29 @@ export async function getCustomers(): Promise<Customer[]> {
   }
 }
 
+// Fetch a single customer by ID
+export async function getCustomerById(id: string) {
+  try {
+    const doc = await database.getDocument(
+      appwriteConfig.databaseId,
+      "customers",
+      id
+    );
+
+    return {
+      $id: doc.$id,
+      image_url: doc.image_url,
+      name: doc.name,
+      email: doc.email,
+    };
+  } catch (err: unknown) {
+    if (isAppwriteError(err) && err.code === 404) return null;
+    console.error("Database Error:", err);
+    throw new Error("Unexpected error fetching invoice.");
+  }
+}
+
+// Fetch customers and augment with invoice statistics
 export async function getFormattedCustomersTable() {
   const customers = await getCustomers();
   const invoices = await getInvoices();
@@ -195,47 +220,24 @@ export async function deleteCustomer(id: string): Promise<void> {
 
 export async function updateCustomer(id: string, formData: FormData) {
   try {
-    const { name, email, image_url } = Object.fromEntries(formData);
+    const name = formData.get("name")?.toString();
 
-    // Validate data
-    if (!name || !email || !image_url) {
-      return { message: "All fields are required." };
+    if (!name?.trim()) {
+      return { message: "Customer name is required." };
     }
 
-    // Update customer in Appwrite
+    // Update only the name field in Appwrite
     await database.updateDocument(appwriteConfig.databaseId, "customers", id, {
-      name: name.toString().trim(),
-      email: email.toString().trim(),
-      image_url: image_url.toString().trim(),
+      name: name.trim(),
     });
-
-    // Revalidate the customers path
-    revalidatePath("/dashboard/customers");
-    redirect("/dashboard/customers");
-
-    return { message: "Customer updated successfully." };
   } catch (err: unknown) {
     console.error("Database Error:", err);
     return { message: "Failed to update customer." };
   }
-}
 
-export async function getCustomerById(id: string) {
-  try {
-    const doc = await database.getDocument(
-      appwriteConfig.databaseId,
-      "customers",
-      id
-    );
+  // Revalidate the customers path
+  revalidatePath("/dashboard/customers");
 
-    return {
-      $id: doc.$id,
-      image_url: doc.image_url,
-      name: doc.name,
-      email: doc.email,
-    };
-  } catch (err: unknown) {
-    console.error("Database Error:", err);
-    throw new Error("Unexpected error fetching invoice.");
-  }
+  // Redirect after successful update
+  redirect("/dashboard/customers");
 }

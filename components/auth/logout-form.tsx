@@ -37,7 +37,7 @@ export default function LogoutForm() {
       <button
         type="submit"
         disabled={isLoading}
-        className={`flex h-12 w-full grow items-center justify-center gap-2 rounded-md bg-custom-muted p-3 text-sm font-medium transition-colors ${
+        className={`flex h-12 w-full grow items-center justify-center gap-2 rounded-md bg-custom-muted p-3 text-sm font-medium transition-colors cursor-pointer ${
           isLoading
             ? "opacity-50 cursor-not-allowed"
             : "hover:bg-sky-100 hover:text-blue-600"
