@@ -1,8 +1,9 @@
 import Image from "next/image";
+import clsx from "clsx";
 import { formatCurrency } from "@/lib/utils";
 import { fetchFilteredCustomers } from "@/lib/actions/action.customer";
 import { ActionButtons } from "../common/action-buttons";
-import clsx from "clsx";
+import { Avatar } from "../common/avatar";
 
 export default async function CustomersTable({
   query,
@@ -137,17 +138,14 @@ export default async function CustomersTable({
                       <td
                         className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-custom-foreground sm:pl-6 border-r"
                         style={{ borderColor: "var(--border)" }}>
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 shrink-0">
-                            <Image
-                              src={customer.image_url}
-                              className="rounded-full object-cover w-full h-full"
-                              alt={`${customer.name}'s profile picture`}
-                              width={28}
-                              height={28}
-                            />
-                          </div>
-                          <p className="font-medium">{customer.name}</p>
+                        <div className="mb-2 flex items-center">
+                          <Avatar
+                            src={customer.image_url}
+                            alt={`${customer.name}'s profile picture`}
+                            name={customer.name}
+                            size={28}
+                          />
+                          <p>{customer.name}</p>
                         </div>
                       </td>
                       <td

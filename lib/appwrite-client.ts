@@ -10,7 +10,7 @@ const account = new Account(client);
 export const loginWithGoogle = () =>
   account.createOAuth2Session({
     provider: OAuthProvider.Google,
-    success: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/google/success`,
+    success: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`,
     failure: `${process.env.NEXT_PUBLIC_BASE_URL}/login`,
     scopes: ["email", "profile"],
   });

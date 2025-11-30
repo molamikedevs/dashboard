@@ -1,8 +1,8 @@
-import Image from "next/image";
 import { fetchFilteredInvoices } from "@/lib/actions/action.invoice";
 import { formatCurrency, formatDateToLocal } from "@/lib/utils";
 import { ActionButtons } from "../common/action-buttons";
 import InvoiceStatus from "./status";
+import { Avatar } from "../common/avatar";
 
 export default async function InvoicesTable({
   query,
@@ -21,25 +21,14 @@ export default async function InvoicesTable({
               <div
                 key={invoice.id}
                 className="mb-2 w-full rounded-md bg-custom-background p-4">
-                <div
-                  className="flex items-center justify-between border-b pb-4"
-                  style={{ borderColor: "var(--border)" }}>
-                  <div>
-                    <div className="mb-2 flex items-center">
-                      <Image
-                        src={invoice.image_url}
-                        className="mr-2 rounded-full"
-                        width={28}
-                        height={28}
-                        alt={`${invoice.name}'s profile picture`}
-                      />
-                      <p>{invoice.name}</p>
-                    </div>
-                    <p className="text-sm text-custom-muted-foreground">
-                      {invoice.email}
-                    </p>
-                  </div>
-                  <InvoiceStatus status={invoice.status} />
+                <div className="mb-2 flex items-center">
+                  <Avatar
+                    src={invoice.image_url}
+                    alt={`${invoice.name}'s profile picture`}
+                    name={invoice.name}
+                    size={28}
+                  />
+                  <p>{invoice.name}</p>
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
@@ -97,15 +86,12 @@ export default async function InvoicesTable({
                   style={{ borderColor: "var(--border)" }}>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 shrink-0">
-                        <Image
-                          src={invoice.image_url}
-                          className="rounded-full object-cover w-full h-full"
-                          width={28}
-                          height={28}
-                          alt={`${invoice.name}'s profile picture`}
-                        />
-                      </div>
+                      <Avatar
+                        src={invoice.image_url}
+                        alt={`${invoice.name}'s profile picture`}
+                        name={invoice.name}
+                        size={28}
+                      />
                       <p>{invoice.name}</p>
                     </div>
                   </td>
