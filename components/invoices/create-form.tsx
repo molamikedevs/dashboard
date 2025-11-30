@@ -62,7 +62,10 @@ export default function CreateInvoiceForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6">
+    <form
+      onSubmit={handleSubmit}
+      className="mt-6"
+      aria-label="Create Invoice Form">
       <div className="rounded-md bg-custom-muted text-custom-foreground p-4 md:p-6">
         {/* Customer */}
         <div className="mb-4">

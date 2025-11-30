@@ -25,6 +25,7 @@ export function Avatar({ src, alt, size = 28, className = "" }: AvatarProps) {
           className="object-cover"
           alt={alt}
           sizes={`${size}px`}
+          aria-label={alt}
         />
       </div>
     );

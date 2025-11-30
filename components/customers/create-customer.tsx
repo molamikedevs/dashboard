@@ -234,7 +234,7 @@ export default function CreateCustomerForm() {
                     className="w-24 h-24 rounded-full object-cover mx-auto mb-2"
                   />
                   {!isSubmitting && (
-                    <button
+                    <Button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -242,7 +242,7 @@ export default function CreateCustomerForm() {
                       }}
                       className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors">
                       <X className="w-4 h-4" />
-                    </button>
+                    </Button>
                   )}
                 </div>
                 <p className="text-sm text-gray-600 mt-2">{fileName}</p>
@@ -267,12 +267,16 @@ export default function CreateCustomerForm() {
       <div className="mt-6 flex justify-end gap-4">
         <Link
           href="/dashboard/customers"
+          aria-label="Cancel creating customer"
           className={`flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200 ${
             isSubmitting ? "pointer-events-none opacity-50" : ""
           }`}>
           Cancel
         </Link>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          ariaLabel="Create Customer"
+          disabled={isSubmitting}>
           {isSubmitting ? "Creating..." : "Create Customer"}
         </Button>
       </div>

@@ -121,20 +121,20 @@ export function ActionButtons({ id, type, editPath, onDeleteSuccess }: ActionsPr
   return (
     <div className="flex items-center gap-2">
       {/* Edit Button */}
-      <Link 
-        href={finalEditPath} 
-        className="flex items-center justify-center w-8 h-8 rounded-md text-blue-500 hover:bg-blue-300 transition-colors border border-blue-200" 
+      <Link
+        href={finalEditPath}
+        className="flex items-center justify-center w-8 h-8 rounded-md text-blue-500 hover:bg-blue-300 transition-colors border border-blue-200"
         title={`Edit ${type}`}
-      >
+        aria-label={`Edit ${type} ${id}`}>
         <Pencil className="w-4 h-4 hover:text-blue-700" />
       </Link>
-      
+
       {/* Delete Button */}
       <button
         onClick={handleDelete}
         className="flex items-center justify-center w-8 h-8 rounded-md text-red-500 hover:bg-red-300 transition-colors border border-red-200"
         title={`Delete ${type}`}
-      >
+        aria-label={`Delete ${type} ${id}`}>
         <Trash2 className="w-4 h-4 hover:text-red-700" />
       </button>
     </div>

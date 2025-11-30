@@ -23,7 +23,11 @@ export default function Breadcrumbs({
             className={clsx(
               breadcrumb.active ? "text-custom-foreground" : "text-gray-500"
             )}>
-            <Link href={breadcrumb.href}>{breadcrumb.label}</Link>
+            <Link
+              href={breadcrumb.href}
+              aria-current={breadcrumb.active ? "page" : undefined}>
+              {breadcrumb.label}
+            </Link>
             {index < breadcrumbs.length - 1 ? (
               <span className="mx-3 inline-block">/</span>
             ) : null}

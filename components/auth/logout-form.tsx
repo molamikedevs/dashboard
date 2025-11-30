@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Power, Loader2 } from "lucide-react";
 import { logout } from "@/lib/actions/action.auth";
+import { Button } from "../common/button";
 
 export default function LogoutForm() {
   const router = useRouter();
@@ -34,9 +35,10 @@ export default function LogoutForm() {
 
   return (
     <form onSubmit={handleLogout} className="w-full">
-      <button
+      <Button
         type="submit"
         disabled={isLoading}
+        ariaLabel="Sign out"
         className={`flex h-12 w-full grow items-center justify-center gap-2 rounded-md bg-custom-muted p-3 text-sm font-medium transition-colors cursor-pointer ${
           isLoading
             ? "opacity-50 cursor-not-allowed"
@@ -50,7 +52,7 @@ export default function LogoutForm() {
         <div className="hidden md:block">
           {isLoading ? "Signing Out..." : "Sign Out"}
         </div>
-      </button>
+      </Button>
     </form>
   );
 }

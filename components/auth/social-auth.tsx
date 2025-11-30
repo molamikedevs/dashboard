@@ -37,6 +37,7 @@ export default function SocialAuth() {
         type="button"
         onClick={handleGoogleLogin}
         disabled={isLoading}
+        ariaLabel="Continue with Google"
         className="flex w-full items-center justify-center gap-3 rounded-md bg-custom-muted px-3 py-2 text-sm font-semibold  shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
         {isLoading ? (
           <Loader2 className="w-5 h-5 animate-spin" />

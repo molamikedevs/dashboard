@@ -147,6 +147,7 @@ export default function EditCustomerForm({ customer }: { customer: Customer }) {
       <div className="mt-6 flex justify-end gap-4">
         <Link
           href="/dashboard/customers"
+          aria-label="Cancel editing customer"
           className="flex h-10 items-center rounded-lg bg-gray-300 px-4 text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors">
           Cancel
         </Link>
