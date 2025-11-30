@@ -27,6 +27,7 @@ export default async function InvoicesTable({
                     alt={`${invoice.name}'s profile picture`}
                     name={invoice.name}
                     size={28}
+                    className="mr-2"
                   />
                   <p>{invoice.name}</p>
                 </div>

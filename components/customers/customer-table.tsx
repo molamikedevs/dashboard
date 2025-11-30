@@ -1,4 +1,3 @@
-import Image from "next/image";
 import clsx from "clsx";
 import { formatCurrency } from "@/lib/utils";
 import { fetchFilteredCustomers } from "@/lib/actions/action.customer";
@@ -40,15 +39,15 @@ export default async function CustomersTable({
                     <div className="flex items-center justify-between border-b pb-4">
                       <div className="w-full">
                         <div className="mb-2 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Image
+                          <div className="mb-2 flex items-center">
+                            <Avatar
                               src={customer.image_url}
-                              className="rounded-full"
                               alt={`${customer.name}'s profile picture`}
-                              width={28}
-                              height={28}
+                              name={customer.name}
+                              size={28}
+                              className="mr-2"
                             />
-                            <p className="font-medium">{customer.name}</p>
+                            <p>{customer.name}</p>
                           </div>
                           <div className="relative z-20">
                             <ActionButtons
@@ -144,6 +143,7 @@ export default async function CustomersTable({
                             alt={`${customer.name}'s profile picture`}
                             name={customer.name}
                             size={28}
+                            className="mr-3"
                           />
                           <p>{customer.name}</p>
                         </div>

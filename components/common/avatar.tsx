@@ -16,13 +16,17 @@ export function Avatar({ src, alt, size = 28, className = "" }: AvatarProps) {
 
   if (isValidSrc) {
     return (
-      <Image
-        src={src}
-        className={`rounded-full ${className}`}
-        width={size}
-        height={size}
-        alt={alt}
-      />
+      <div
+        className={`relative rounded-full overflow-hidden ${className}`}
+        style={{ width: size, height: size }}>
+        <Image
+          src={src}
+          fill
+          className="object-cover"
+          alt={alt}
+          sizes={`${size}px`}
+        />
+      </div>
     );
   }
 

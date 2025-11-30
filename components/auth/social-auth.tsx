@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import Image from "next/image";
 import { Button } from "../common/button";
 import { loginWithGoogle } from "@/lib/appwrite-client";
+import Image from "next/image";
 
 export default function SocialAuth() {
   const [isLoading, setIsLoading] = useState<boolean>(false);

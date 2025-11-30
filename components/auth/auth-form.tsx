@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { AtSign, CircleUser, Eye, EyeOff, Lock } from "lucide-react";
-
+import { useRouter } from "next/navigation";
 import AuthSwitch from "./auth-switch";
 import SubmitButton from "./submit-button";
 import SocialAuth from "./social-auth";
@@ -19,7 +18,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [serverError, setServerError] = useState<string>("");
   const router = useRouter();
-
   // Initial values with all possible fields
   const initialValues = {
     username: "",
@@ -58,7 +56,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
     isSubmitting,
     setIsSubmitting,
   } = useFormValidation(initialValues, validationRules);
-
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
