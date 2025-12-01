@@ -61,19 +61,26 @@ export default function EditInvoiceForm({
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <div className="rounded-md bg-custom-muted text-custom-foreground p-4 md:p-6">
         {/* Customer */}
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium">
+          <label
+            htmlFor="customer_id"
+            className="mb-2 block text-sm font-medium">
             Choose customer
           </label>
 
           <div className="relative">
             <select
+              id="customer_id"
               name="customer_id"
               value={values.customer_id}
               onChange={handleChange}
+              aria-invalid={errors.customer_id ? "true" : "false"}
+              aria-describedby={
+                errors.customer_id ? "customer-error" : undefined
+              }
               className={`peer block w-full rounded-md border bg-custom-muted py-2 pl-10 ${
                 errors.customer_id ? "border-red-500" : "border-custom-border"
               }`}>
@@ -87,22 +94,25 @@ export default function EditInvoiceForm({
             <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
           </div>
 
-          <ErrorInput message={errors.customer_id} />
+          <ErrorInput message={errors.customer_id} id="customer-error" />
         </div>
 
         {/* Amount */}
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium">
+          <label htmlFor="amount" className="mb-2 block text-sm font-medium">
             Choose an amount
           </label>
 
           <div className="relative">
             <input
+              id="amount"
               name="amount"
               type="number"
               step="0.01"
               value={values.amount}
               onChange={handleChange}
+              aria-invalid={errors.amount ? "true" : "false"}
+              aria-describedby={errors.amount ? "amount-error" : undefined}
               className={`peer block w-full rounded-md border py-2 pl-10 ${
                 errors.amount ? "border-red-500" : "border-custom-border"
               }`}
@@ -110,7 +120,7 @@ export default function EditInvoiceForm({
             <Receipt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
           </div>
 
-          <ErrorInput message={errors.amount} />
+          <ErrorInput message={errors.amount} id="amount-error" />
         </div>
 
         {/* Status */}
@@ -121,8 +131,11 @@ export default function EditInvoiceForm({
 
           <div className="rounded-md border bg-custom-muted px-3.5 py-3">
             <div className="flex gap-4">
-              <label className="flex items-center gap-1.5 cursor-pointer">
+              <label
+                htmlFor="status-pending"
+                className="flex items-center gap-1.5 cursor-pointer">
                 <input
+                  id="status-pending"
                   type="radio"
                   name="status"
                   value="pending"
@@ -133,8 +146,11 @@ export default function EditInvoiceForm({
                 Pending <Clock className="h-4 w-4" />
               </label>
 
-              <label className="flex items-center gap-1.5 cursor-pointer bg-green-500 px-3 py-1.5 rounded-full text-white">
+              <label
+                htmlFor="status-paid"
+                className="flex items-center gap-1.5 cursor-pointer bg-green-500 px-3 py-1.5 rounded-full text-white">
                 <input
+                  id="status-paid"
                   type="radio"
                   name="status"
                   value="paid"
@@ -146,7 +162,7 @@ export default function EditInvoiceForm({
               </label>
             </div>
 
-            <ErrorInput message={errors.status} />
+            <ErrorInput message={errors.status} id="status-error" />
           </div>
         </fieldset>
       </div>
@@ -154,7 +170,8 @@ export default function EditInvoiceForm({
       <div className="mt-6 flex justify-end gap-4">
         <Link
           href="/dashboard/invoices"
-          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 hover:bg-gray-200">
+          className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 hover:bg-gray-200"
+          role="button">
           Cancel
         </Link>
         <Button disabled={isSubmitting}>
