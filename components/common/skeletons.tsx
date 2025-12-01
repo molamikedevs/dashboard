@@ -174,26 +174,27 @@ export function InvoicesTableSkeleton() {
             <InvoicesMobileSkeleton />
           </div>
           <table className="hidden min-w-full md:table">
-            <thead className="rounded-lg text-left text-sm font-normal">
+            <thead className="rounded-md bg-custom-muted text-left text-sm font-normal">
               <tr>
-                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
+                <th scope="col" className="px-4 py-5 font-medium sm:pl-8">
                   Customer
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Email
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
+                <th scope="col" className="px-3 py-5 font-medium text-center">
                   Amount
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
+                <th scope="col" className="px-3 py-5 font-medium text-center">
                   Date
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
+                <th scope="col" className="px-3 py-5 font-medium text-center">
                   Status
                 </th>
-                <th
-                  scope="col"
-                  className="relative pb-4 pl-3 pr-6 pt-2 sm:pr-6">
+                <th scope="col" className="px-3 py-5 font-medium text-center">
+                  Actions
+                </th>
+                <th scope="col" className="sr-only">
                   <span className="sr-only">Edit</span>
                 </th>
               </tr>
@@ -343,27 +344,25 @@ export function CustomersTableSkeleton() {
             <CustomersMobileSkeleton />
           </div>
           <table className="hidden min-w-full text-custom-foreground md:table">
-            <thead className="rounded-lg text-left text-sm font-normal">
+            <thead className="rounded-md bg-custom-muted text-left text-sm font-normal">
               <tr>
                 <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                  Customer
+                  Name
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
+                <th scope="col" className="px-4 py-5 font-medium">
                   Email
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Invoices
+                <th scope="col" className="px-4 py-5 font-medium text-center">
+                  Total Invoices
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Pending
+                <th scope="col" className="px-4 py-5 font-medium text-center">
+                  Total Pending
                 </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Paid
+                <th scope="col" className="px-4 py-5 font-medium text-center">
+                  Total Paid
                 </th>
-                <th
-                  scope="col"
-                  className="relative pb-4 pl-3 pr-6 pt-2 sm:pr-6">
-                  <span className="sr-only">Edit</span>
+                <th scope="col" className="px-4 py-5 font-medium text-center">
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -376,6 +375,107 @@ export function CustomersTableSkeleton() {
               <CustomerTableRowSkeleton />
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function StatsCardSkeleton() {
+  return (
+    <div className={`${shimmer} relative rounded-lg bg-custom-muted p-6`}>
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="h-4 w-20 rounded-md bg-custom-background mb-2"></div>
+          <div className="h-8 w-24 rounded-md bg-custom-background"></div>
+        </div>
+        <div className="h-12 w-12 rounded-full bg-custom-background"></div>
+      </div>
+      <div className="mt-4">
+        <div className="h-3 w-32 rounded-md bg-custom-background"></div>
+      </div>
+    </div>
+  );
+}
+
+export function GlobalSkeleton() {
+  return (
+    <div className="min-h-screen bg-custom-background">
+      {/* Header */}
+      <div
+        className={`${shimmer} relative border-b border-custom-border bg-custom-muted`}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex items-center">
+              <div className="h-8 w-8 rounded-md bg-custom-background"></div>
+              <div className="ml-4 h-6 w-32 rounded-md bg-custom-background"></div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 rounded-full bg-custom-background"></div>
+              <div className="h-10 w-24 rounded-md bg-custom-background"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="h-8 w-48 rounded-md bg-custom-muted mb-2"></div>
+          <div className="h-4 w-64 rounded-md bg-custom-muted"></div>
+        </div>
+
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <StatsCardSkeleton />
+              <StatsCardSkeleton />
+              <StatsCardSkeleton />
+            </div>
+
+            {/* Main Table/Content */}
+            <div className="rounded-lg bg-custom-muted p-4">
+              <div className="mb-4 h-6 w-48 rounded-md bg-custom-background"></div>
+              <div className="space-y-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-12 rounded-md bg-custom-background"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-6">
+            {/* Side Panel */}
+            <div className="rounded-lg bg-custom-muted p-4">
+              <div className="mb-4 h-6 w-32 rounded-md bg-custom-background"></div>
+              <div className="space-y-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-16 rounded-md bg-custom-background"></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="rounded-lg bg-custom-muted p-4">
+              <div className="mb-4 h-6 w-40 rounded-md bg-custom-background"></div>
+              <div className="space-y-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-10 rounded-md bg-custom-background"></div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
