@@ -152,6 +152,8 @@ export default function CreateCustomerForm() {
               name="name"
               type="text"
               placeholder="Customer name..."
+              aria-invalid={errors.name ? "true" : "false"}
+              aria-describedby={errors.name ? "name-error" : undefined}
               value={values.name}
               onChange={handleChange}
               disabled={isSubmitting}
@@ -168,7 +170,7 @@ export default function CreateCustomerForm() {
             />
             <User className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
           </div>
-          <ErrorInput message={errors.name} />
+          <ErrorInput message={errors.name} id="name-error" />
         </div>
 
         {/* Email */}
@@ -182,6 +184,8 @@ export default function CreateCustomerForm() {
               name="email"
               type="email"
               placeholder="Enter email"
+              aria-invalid={errors.email ? "true" : "false"}
+              aria-describedby={errors.email ? "email-error" : undefined}
               value={values.email}
               onChange={handleChange}
               disabled={isSubmitting}
@@ -192,7 +196,7 @@ export default function CreateCustomerForm() {
             />
             <Mail className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
           </div>
-          <ErrorInput message={errors.email} />
+          <ErrorInput message={errors.email} id="email-error" />
         </div>
 
         {/* Image Upload */}
@@ -218,6 +222,8 @@ export default function CreateCustomerForm() {
               name="image"
               type="file"
               accept="image/*"
+              aria-invalid={errors.image ? "true" : "false"}
+              aria-describedby={errors.image ? "image-error" : undefined}
               onChange={handleFileChange}
               disabled={isSubmitting}
               className="hidden"

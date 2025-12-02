@@ -63,6 +63,8 @@ export default function EditCustomerForm({ customer }: { customer: Customer }) {
               name="name"
               type="text"
               value={values.name}
+              aria-invalid={errors.name ? "true" : "false"}
+              aria-describedby={errors.name ? "name-error" : undefined}
               onChange={handleChange}
               className={`peer block w-full rounded-md border bg-custom-muted py-2 pl-10 ${
                 errors.name ? "border-red-500" : "border-custom-border"

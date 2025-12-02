@@ -62,9 +62,7 @@ export default function CreateInvoiceForm({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="mt-6">
+    <form onSubmit={handleSubmit} className="mt-6">
       <div className="rounded-md bg-custom-muted text-custom-foreground p-4 md:p-6">
         {/* Customer */}
         <div className="mb-4">
@@ -92,7 +90,7 @@ export default function CreateInvoiceForm({
             </select>
             <User className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] text-gray-500 -translate-y-1/2" />
           </div>
-          <ErrorInput message={errors.customer_id} />
+          <ErrorInput message={errors.customer_id} id="customer-error" />
         </div>
 
         {/* Amount */}
@@ -116,7 +114,7 @@ export default function CreateInvoiceForm({
             />
             <Receipt className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] text-gray-500 -translate-y-1/2" />
           </div>
-          <ErrorInput message={errors.amount} />
+          <ErrorInput message={errors.amount} id="amount-error" />
         </div>
 
         {/* Status */}
@@ -154,6 +152,7 @@ export default function CreateInvoiceForm({
                   name="status"
                   type="radio"
                   value="paid"
+                  aria-describedby={errors.status ? "status-error" : undefined}
                   checked={values.status === "paid"}
                   onChange={handleChange}
                   disabled={isSubmitting}
@@ -170,7 +169,7 @@ export default function CreateInvoiceForm({
                 </label>
               </div>
             </div>
-            <ErrorInput message={errors.status} />
+            <ErrorInput message={errors.status} id="status-error" />
           </div>
         </fieldset>
       </div>
@@ -178,6 +177,7 @@ export default function CreateInvoiceForm({
       <div className="mt-6 flex justify-end gap-4">
         <Link
           href="/dashboard/invoices"
+          aria-describedby="cancel-button"
           className={`flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 hover:bg-gray-200 ${
             isSubmitting ? "pointer-events-none opacity-50" : ""
           }`}>
