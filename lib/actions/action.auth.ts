@@ -2,10 +2,12 @@
 
 import { cookies } from "next/headers";
 import { ID } from "node-appwrite";
-import { account } from "../appwrite-server";
+import { account, users } from "../appwrite-server";
 import { LoginSchema, SignUpSchema } from "../validation";
+import { Query } from "appwrite";
 
 export async function login(formData: FormData) {
+  // 1. Validation (Keep your existing schema logic)
   const validatedFields = LoginSchema.safeParse({
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -18,14 +20,17 @@ export async function login(formData: FormData) {
   const { email, password } = validatedFields.data;
 
   try {
+    // 2. Create Session
     const session = await account.createEmailPasswordSession(email, password);
 
-    // Store JWT in cookies for SSR
+    // 3. Set the Cookie manually
     const cookieStore = await cookies();
     cookieStore.set("appwrite-session", session.secret, {
-      httpOnly: true,
-      secure: true,
       path: "/",
+      httpOnly: true,
+      sameSite: "strict",
+      secure: true,
+      expires: new Date(session.expire),
     });
 
     return { success: true };
@@ -36,6 +41,7 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
+  // 1. Validation (Keep your existing schema logic)
   const validatedFields = SignUpSchema.safeParse({
     username: formData.get("username") as string,
     email: formData.get("email") as string,
@@ -47,11 +53,42 @@ export async function signup(formData: FormData) {
   }
 
   const { username, email, password } = validatedFields.data;
+
+  // 2. Check: Is Username Taken?
+  const existingUsernames = await users.list([Query.equal("name", username)]);
+
+  if (existingUsernames.total > 0) {
+    return { error: "This username is already taken" };
+  }
+
+  // 3. Check: Is Email Taken?
+  // Although create() catches this, checking manually lets us return a specific error
+  const existingEmails = await users.list([Query.equal("email", email)]);
+
+  if (existingEmails.total > 0) {
+    return { error: "This email is already registered" };
+  }
+
   try {
+    // 4. Create the Account
     await account.create(ID.unique(), email, password, username);
+
+    // 5. IMMEDIATELY Log the user in (Create Session)
+    const session = await account.createEmailPasswordSession(email, password);
+
+    // 6. Set the Cookie manually
+    const cookieStore = await cookies();
+    cookieStore.set("appwrite-session", session.secret, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "strict",
+      secure: true,
+      expires: new Date(session.expire),
+    });
+
     return { success: true };
   } catch (err) {
-    console.log(err);
+    console.log("Signup Error:", err);
     return { error: "Could not create account" };
   }
 }

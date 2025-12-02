@@ -26,10 +26,6 @@ export type LatestInvoice = {
   amount: number;
 };
 
-// The database returns a number for amount, but we later format it to a string with the formatCurrency function
-export type LatestInvoiceRaw = Omit<LatestInvoice, "amount"> & {
-  amount: number;
-};
 
 export type InvoicesTable = {
   $id: string;
@@ -42,15 +38,7 @@ export type InvoicesTable = {
   status: "pending" | "paid";
 };
 
-export type FilterInvoice = {
-  name: string;
-  email: string;
-  amount: number;
-  date: string;
-  status: "pending" | "paid";
-};
-
-export type CustomersTableType = {
+export type FormattedCustomersTable = {
   $id: string;
   name: string;
   email: string;
@@ -60,16 +48,6 @@ export type CustomersTableType = {
   total_paid: number;
 };
 
-export type FormattedCustomersTable = {
-  $id: string;
-  name: string;
-  email: string;
-  image_url: string;
-  total_invoices: number;
-  total_pending: string;
-  total_paid: string;
-};
-
 export type CustomerField = {
   $id: string;
   name: string;
@@ -77,35 +55,4 @@ export type CustomerField = {
   image_url: string;
 };
 
-export type InvoiceForm = {
-  $id: string[];
-  errors?: {
-    customerId?: string[];
-    amount?: string[];
-    status?: string[];
-  };
-  message?: string | null;
-};
 
-export interface AppwriteError extends Error {
-  code?: number;
-  type?: string;
-  response?: {
-    message?: string;
-  };
-}
-
-export interface AuthErrorResponse {
-  success: false;
-  error: string;
-}
-// Response types
-export interface AuthSuccessResponse<T = Models.Session | Models.User> {
-  success: true;
-  session?: Models.Session;
-  user?: Models.User;
-}
-
-export type AuthResponse<T = Models.Session | Models.User> =
-  | AuthSuccessResponse<T>
-  | AuthErrorResponse;

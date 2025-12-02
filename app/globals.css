@@ -40,10 +40,9 @@
   --font-sans: "Inter", Arial, Helvetica, sans-serif;
   --font-serif: "Lusitana", serif;
 
-  /* Grid Template Columns */
-  /* --grid-template-columns-13: repeat(13, minmax(0, 1fr)); */
 
-  /* Keyframes */
+
+
   @keyframes shimmer {
     100% {
       transform: translateX(100%);
@@ -60,7 +59,7 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Utility classes for CSS variables */
+
 .bg-custom-background {
   background-color: var(--background);
 }

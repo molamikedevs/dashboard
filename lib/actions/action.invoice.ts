@@ -15,7 +15,7 @@ import { isAppwriteError, ITEMS_PER_PAGE } from "../utils";
 export async function getInvoices(): Promise<Invoice[]> {
   const res = await database.listDocuments(
     appwriteConfig.databaseId,
-    "invoice-table"
+    appwriteConfig.collections.invoicesId
   );
 
   return res.documents.map((doc) => ({
@@ -31,7 +31,7 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
   try {
     const doc = await database.getDocument(
       appwriteConfig.databaseId,
-      "invoice-table",
+      appwriteConfig.collections.invoicesId,
       id
     );
 
@@ -134,7 +134,7 @@ export async function fetchInvoicesPages(query: string) {
   return Math.ceil(filtered.length / ITEMS_PER_PAGE);
 }
 
-export async function createInvoice(formData: FormData) {
+export async function createInvoice(formData: FormData): Promise<Invoice> {
   const parsed = CreateInvoiceSchema.parse({
     customer_id: formData.get("customer_id") as string,
     amount: formData.get("amount"),
@@ -145,7 +145,7 @@ export async function createInvoice(formData: FormData) {
 
   await database.createDocument(
     appwriteConfig.databaseId,
-    "invoice-table",
+    appwriteConfig.collections.invoicesId,
     "unique()",
     {
       customer_id,
@@ -159,7 +159,10 @@ export async function createInvoice(formData: FormData) {
   redirect("/dashboard/invoices");
 }
 
-export async function updateInvoice(id: string, formData: FormData) {
+export async function updateInvoice(
+  id: string,
+  formData: FormData
+): Promise<Invoice> {
   const parsed = UpdateInvoiceSchema.parse({
     customer_id: formData.get("customer_id"),
     amount: formData.get("amount"),
@@ -171,7 +174,7 @@ export async function updateInvoice(id: string, formData: FormData) {
 
   await database.updateDocument(
     appwriteConfig.databaseId,
-    "invoice-table",
+    appwriteConfig.collections.invoicesId,
     id,
     {
       customer_id,
@@ -185,11 +188,12 @@ export async function updateInvoice(id: string, formData: FormData) {
   redirect("/dashboard/invoices");
 }
 
-
-
-
 export async function deleteInvoice(id: string): Promise<void> {
-  await database.deleteDocument(appwriteConfig.databaseId, "invoice-table", id);
+  await database.deleteDocument(
+    appwriteConfig.databaseId,
+    appwriteConfig.collections.invoicesId,
+    id
+  );
 
   revalidatePath("/dashboard/invoices");
   redirect("/dashboard/invoices");

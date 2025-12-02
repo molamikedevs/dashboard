@@ -3,15 +3,12 @@
 import { Revenue } from "@/types";
 import { appwriteConfig, database } from "../appwrite-server";
 
-// =====================================================
-// Fetch Revenue Data
-// =====================================================
-
+// Fetch revenue data
 export async function getRevenue(): Promise<Revenue[]> {
   try {
     const res = await database.listDocuments(
       appwriteConfig.databaseId,
-      "revenue"
+      appwriteConfig.collections.revenueId
     );
 
     return res.documents.map((doc) => ({

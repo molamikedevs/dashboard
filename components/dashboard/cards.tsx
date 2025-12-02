@@ -58,7 +58,7 @@ export function Card({
           {title}
         </h3>
       </div>
-      <p className="rounded-xl px-4 py-8 text-center text-2xl bg-custom-background text-custom-foreground">
+      <p className="truncate rounded-xl px-4 py-8 text-center text-2xl bg-custom-background text-custom-foreground">
         {type === "collected" || type === "pending"
           ? formatCurrency(value as number)
           : value}

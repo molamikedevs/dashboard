@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { ID } from "appwrite";
-import { Customer } from "@/types";
+import { Customer, FormattedCustomersTable } from "@/types";
 import { appwriteConfig, database, storage } from "../appwrite-server";
 import { getInvoices } from "./action.invoice";
 import { isAppwriteError, ITEMS_PER_PAGE } from "../utils";
@@ -14,7 +14,7 @@ export async function getCustomersMap() {
   try {
     const response = await database.listDocuments(
       appwriteConfig.databaseId,
-      "customers"
+      appwriteConfig.collections.customersId
     );
     const map = new Map();
     response.documents.forEach((c) => map.set(c.$id, c));
@@ -30,7 +30,7 @@ export async function getCustomers(): Promise<Customer[]> {
   try {
     const response = await database.listDocuments(
       appwriteConfig.databaseId,
-      "customers"
+      appwriteConfig.collections.customersId
     );
 
     return response.documents.map((doc) => ({
@@ -50,7 +50,7 @@ export async function getCustomerById(id: string) {
   try {
     const doc = await database.getDocument(
       appwriteConfig.databaseId,
-      "customers",
+      appwriteConfig.collections.customersId,
       id
     );
 
@@ -68,7 +68,9 @@ export async function getCustomerById(id: string) {
 }
 
 // Fetch customers and augment with invoice statistics
-export async function getFormattedCustomersTable() {
+export async function getFormattedCustomersTable(): Promise<
+  FormattedCustomersTable[]
+> {
   const customers = await getCustomers();
   const invoices = await getInvoices();
 
@@ -198,7 +200,7 @@ export async function createCustomer(formData: FormData) {
 
     await database.createDocument(
       appwriteConfig.databaseId,
-      "customers",
+      appwriteConfig.collections.customersId,
       ID.unique(),
       documentData
     );
@@ -212,7 +214,11 @@ export async function createCustomer(formData: FormData) {
 }
 
 export async function deleteCustomer(id: string): Promise<void> {
-  await database.deleteDocument(appwriteConfig.databaseId, "customers", id);
+  await database.deleteDocument(
+    appwriteConfig.databaseId,
+    appwriteConfig.collections.customersId,
+    id
+  );
 
   revalidatePath("/dashboard/customers");
   redirect("/dashboard/customers");
@@ -227,9 +233,14 @@ export async function updateCustomer(id: string, formData: FormData) {
     }
 
     // Update only the name field in Appwrite
-    await database.updateDocument(appwriteConfig.databaseId, "customers", id, {
-      name: name.trim(),
-    });
+    await database.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.customersId,
+      id,
+      {
+        name: name.trim(),
+      }
+    );
   } catch (err: unknown) {
     console.error("Database Error:", err);
     return { message: "Failed to update customer." };
