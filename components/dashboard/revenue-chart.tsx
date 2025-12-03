@@ -10,7 +10,7 @@ export default async function RevenueChart({ revenue }: { revenue: Revenue[] }) 
   const { yAxisLabels, topLabel } = generateYAxis(revenue);
 
   if (!revenue || revenue.length === 0) {
-    return <p className="mt-4 text-gray-400">No data available.</p>;
+    return <p className="mt-4 text-gray-500">No data available.</p>;
   }
 
   return (
@@ -23,7 +23,9 @@ export default async function RevenueChart({ revenue }: { revenue: Revenue[] }) 
             className="mb-6 hidden flex-col justify-between text-sm sm:flex"
             style={{ height: `${chartHeight}px` }}>
             {yAxisLabels.map((label) => (
-              <p key={label}>{label}</p>
+              <p className="text-gray-400" key={label}>
+                {label}
+              </p>
             ))}
           </div>
 
@@ -34,13 +36,15 @@ export default async function RevenueChart({ revenue }: { revenue: Revenue[] }) 
                 style={{
                   height: `${(chartHeight / topLabel) * month.revenue}px`,
                 }}></div>
-              <p className="-rotate-90 text-sm sm:rotate-0">{month.month}</p>
+              <p className="-rotate-90 text-sm sm:rotate-0 text-gray-400">
+                {month.month}
+              </p>
             </div>
           ))}
         </div>
         <div className="flex items-center pb-2 pt-6">
-          <Calendar className="h-5 w-5 text-gray-500" />
-          <h3 className="ml-2 text-sm text-gray-500 ">Last 12 months</h3>
+          <Calendar className="h-5 w-5 text-gray-400" />
+          <h3 className="ml-2 text-sm text-gray-400 ">Last 12 months</h3>
         </div>
       </div>
     </div>

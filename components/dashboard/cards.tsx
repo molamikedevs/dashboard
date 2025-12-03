@@ -53,10 +53,8 @@ export function Card({
   return (
     <div className="rounded-xl p-2 shadow-sm bg-custom-muted">
       <div className="flex p-4">
-        {Icon ? <Icon className="h-5 w-5 text-custom-foreground" /> : null}
-        <h3 className="ml-2 text-sm font-medium text-custom-foreground">
-          {title}
-        </h3>
+        {Icon ? <Icon className="h-5 w-5 text-gray-400" /> : null}
+        <h2 className="ml-2 text-sm font-medium text-gray-400">{title}</h2>
       </div>
       <p className="truncate rounded-xl px-4 py-8 text-center text-2xl bg-custom-background text-custom-foreground">
         {type === "collected" || type === "pending"

@@ -1,8 +1,8 @@
-import Image from 'next/image';
-import clsx from 'clsx';
+import clsx from "clsx";
 import { RefreshCcw } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getLatestInvoices } from "@/lib/actions/action.invoice";
+import { Avatar } from "../common/avatar";
 
 export default async function LatestInvoices() {
   const latestInvoice = await getLatestInvoices();
@@ -26,12 +26,10 @@ export default async function LatestInvoices() {
                   borderColor: i !== 0 ? "var(--border)" : "transparent",
                 }}>
                 <div className="flex items-center">
-                  <Image
+                  <Avatar
                     src={invoice.image_url}
                     alt={`${invoice.name}'s profile picture`}
-                    className="mr-4 rounded-full w-5 h-5 md:w-10 md:h-10"
-                    width={32}
-                    height={32}
+                    size={40}
                   />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold md:text-base text-custom-foreground">
@@ -50,10 +48,8 @@ export default async function LatestInvoices() {
           })}
         </div>
         <div className="flex items-center pb-2 pt-6">
-          <RefreshCcw className="h-5 w-5 text-custom-muted-foreground" />
-          <h3 className="ml-2 text-sm text-custom-muted-foreground">
-            Updated just now
-          </h3>
+          <RefreshCcw className="h-5 w-5 text-gray-400" />
+          <h3 className="ml-2 text-sm text-gray-400 ">Updated just now</h3>
         </div>
       </div>
     </div>
