@@ -2,6 +2,8 @@ import { getCustomers } from "@/lib/actions/action.customer";
 import Breadcrumbs from "@/components/invoices/breadcrumbs";
 import Form from "@/components/invoices/create-form";
 
+// This page should always be dynamic to fetch the latest customer data
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: "Create Invoice",

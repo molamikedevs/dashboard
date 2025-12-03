@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getRevenue } from "@/lib/actions/action.revenue";
+
 
 import CardWrapper from "@/components/dashboard/cards";
 import LatestInvoices from "@/components/dashboard/latest-invoices";
@@ -15,8 +15,6 @@ export const metadata = {
 };
 
 export default async function Page() {
-  const revenue = await getRevenue();
-
   return (
     <main>
       <h1 className="mb-4 text-xl md:text-2xl font-serif">Dashboard</h1>
@@ -27,7 +25,7 @@ export default async function Page() {
       </div>
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
         <Suspense fallback={<RevenueChartSkeleton />}>
-          <RevenueChart revenue={revenue} />
+          <RevenueChart />
         </Suspense>
 
         <Suspense fallback={<LatestInvoicesSkeleton />}>

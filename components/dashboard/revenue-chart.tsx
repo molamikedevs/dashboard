@@ -1,10 +1,12 @@
 
 
+import { getRevenue } from "@/lib/actions/action.revenue";
 import { generateYAxis } from "@/lib/utils";
-import { Revenue } from "@/types";
 import { Calendar } from "lucide-react";
 
-export default async function RevenueChart({ revenue }: { revenue: Revenue[] }) {
+export default async function RevenueChart() {
+  const revenue = await getRevenue();
+
   const chartHeight = 350;
 
   const { yAxisLabels, topLabel } = generateYAxis(revenue);
