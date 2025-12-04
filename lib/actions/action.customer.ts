@@ -1,20 +1,21 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ID } from "appwrite";
-import { Customer, FormattedCustomersTable } from "@/types";
+import { ID, Query } from "appwrite";
+import { Customer } from "@/types";
 import { appwriteConfig, database, storage } from "../appwrite-server";
-import { getInvoices } from "./action.invoice";
+
 import { isAppwriteError, ITEMS_PER_PAGE } from "../utils";
 import { CreateCustomerSchema } from "../validation";
 import { redirect } from "next/navigation";
 
-// Fetch a map of customer IDs to customer data
+// Get a map of all customers by their ID
 export async function getCustomersMap() {
   try {
     const response = await database.listDocuments(
       appwriteConfig.databaseId,
-      appwriteConfig.collections.customersId
+      appwriteConfig.collections.customersId,
+      [Query.limit(1000)] // Assuming we have less than 1000 customers
     );
     const map = new Map();
     response.documents.forEach((c) => map.set(c.$id, c));
@@ -25,14 +26,14 @@ export async function getCustomersMap() {
   }
 }
 
-// Fetch all customers
+// Fetch all customers (limited to 50)
 export async function getCustomers(): Promise<Customer[]> {
   try {
     const response = await database.listDocuments(
       appwriteConfig.databaseId,
-      appwriteConfig.collections.customersId
+      appwriteConfig.collections.customersId,
+      [Query.limit(50)]
     );
-
     return response.documents.map((doc) => ({
       $id: doc.$id,
       name: doc.name,
@@ -53,7 +54,6 @@ export async function getCustomerById(id: string) {
       appwriteConfig.collections.customersId,
       id
     );
-
     return {
       $id: doc.$id,
       image_url: doc.image_url,
@@ -62,116 +62,149 @@ export async function getCustomerById(id: string) {
     };
   } catch (err: unknown) {
     if (isAppwriteError(err) && err.code === 404) return null;
-    console.error("Database Error:", err);
-    throw new Error("Unexpected error fetching invoice.");
+    throw new Error("Unexpected error fetching customer.");
   }
 }
 
-// Fetch customers and augment with invoice statistics
-export async function getFormattedCustomersTable(): Promise<
-  FormattedCustomersTable[]
-> {
-  const customers = await getCustomers();
-  const invoices = await getInvoices();
-
-  // Create a dictionary of invoice stats grouped by customer_id
-  const invoiceStats: Record<
-    string,
-    { total_invoices: number; total_paid: number; total_pending: number }
-  > = {};
-
-  invoices.forEach((inv) => {
-    if (!invoiceStats[inv.customer_id]) {
-      invoiceStats[inv.customer_id] = {
-        total_invoices: 0,
-        total_paid: 0,
-        total_pending: 0,
-      };
-    }
-
-    invoiceStats[inv.customer_id].total_invoices += 1;
-
-    if (inv.status === "paid") {
-      invoiceStats[inv.customer_id].total_paid += inv.amount;
-    } else if (inv.status === "pending") {
-      invoiceStats[inv.customer_id].total_pending += inv.amount;
-    }
-  });
-
-  // Merge customers + invoice stats
-  const formatted = customers.map((cust) => {
-    const stats = invoiceStats[cust.$id] || {
-      total_invoices: 0,
-      total_paid: 0,
-      total_pending: 0,
-    };
-
-    return {
-      $id: cust.$id,
-      name: cust.name,
-      email: cust.email,
-      image_url: cust.image_url,
-      total_invoices: stats.total_invoices,
-      total_paid: stats.total_paid,
-      total_pending: stats.total_pending,
-    };
-  });
-
-  return formatted;
-}
-
-export async function fetchFilteredCustomers(
-  query: string,
-  currentPage: number
-) {
-  const customers = await getFormattedCustomersTable();
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-  const q = query.toLowerCase();
-
-  const filtered = customers.filter((customer) => {
-    const values = [customer.name ?? "", customer.email ?? ""];
-    return values.some((v) => v.toLowerCase().includes(q));
-  });
-
-  return filtered.slice(offset, offset + ITEMS_PER_PAGE);
-}
-
-export async function fetchCustomersPages(query: string) {
-  const customers = await getFormattedCustomersTable();
-  const q = query.toLowerCase();
-
-  const filtered = customers.filter((customer) => {
-    const values = [customer.name ?? "", customer.email ?? ""];
-    return values.some((v) => v.toLowerCase().includes(q));
-  });
-
-  return Math.ceil(filtered.length / ITEMS_PER_PAGE);
-}
-
-// Upload image to Appwrite Storage and return public view URL
+// Internal helper
 async function uploadImage(file: File): Promise<string | null> {
   try {
-    // Directly pass the File object to Appwrite (supported by SDK in Node 18+ / Next.js runtime)
     const result = await storage.createFile(
       appwriteConfig.storageId,
       ID.unique(),
       file
     );
-    const fileUrl = `https://fra.cloud.appwrite.io/v1/storage/buckets/${appwriteConfig.storageId}/files/${result.$id}/view?project=${appwriteConfig.projectId}`;
-    return fileUrl;
+    return `https://fra.cloud.appwrite.io/v1/storage/buckets/${appwriteConfig.storageId}/files/${result.$id}/view?project=${appwriteConfig.projectId}`;
   } catch (error) {
     console.error("Error uploading image:", error);
     return null;
   }
 }
 
+// Fetch customers with filtering and pagination
+export async function fetchFilteredCustomers(
+  query: string,
+  currentPage: number
+) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    let customers = [];
+
+    // --- PATH A: SEARCH MODE ---
+    if (query) {
+      // If searching, we ask DB to find matches by Name or Email
+      const response = await database.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.customersId,
+        [
+          Query.search("name", query), // Note: Appwrite Search requires a FullText index
+          Query.limit(ITEMS_PER_PAGE),
+          Query.offset(offset),
+        ]
+      );
+      customers = response.documents;
+    }
+    // --- PATH B: FAST MODE (No Search) ---
+    else {
+      // Just get the next page of users
+      const response = await database.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.customersId,
+        [
+          Query.orderDesc("$createdAt"),
+          Query.limit(ITEMS_PER_PAGE),
+          Query.offset(offset),
+        ]
+      );
+      customers = response.documents;
+    }
+
+    // If no customers found, return early
+    if (customers.length === 0) return [];
+
+    // --- AGGREGATE STATS (The "Join") ---
+    // We need to calculate total_invoices and total_paid for ONLY these 6 customers.
+
+    const customerIds = customers.map((c) => c.$id);
+
+    // Fetch ALL invoices belonging to these specific customers
+    // (This is much lighter than fetching ALL invoices in the system)
+    const invoiceResponse = await database.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.invoicesId,
+      [Query.equal("customer_id", customerIds)]
+    );
+
+    const relatedInvoices = invoiceResponse.documents;
+
+    // Map the stats in memory
+    const formatted = customers.map((cust) => {
+      // Filter invoices for this specific customer
+      const customerInvoices = relatedInvoices.filter(
+        (inv) => inv.customer_id === cust.$id
+      );
+
+      const total_invoices = customerInvoices.length;
+      const total_pending = customerInvoices
+        .filter((inv) => inv.status === "pending")
+        .reduce((sum, inv) => sum + inv.amount, 0);
+      const total_paid = customerInvoices
+        .filter((inv) => inv.status === "paid")
+        .reduce((sum, inv) => sum + inv.amount, 0);
+
+      return {
+        $id: cust.$id,
+        name: cust.name,
+        email: cust.email,
+        image_url: cust.image_url,
+        total_invoices,
+        total_pending,
+        total_paid,
+      };
+    });
+
+    return formatted;
+  } catch (error) {
+    console.error("Error fetching filtered customers:", error);
+    return [];
+  }
+}
+
+// Fetch total pages for customers based on search query
+export async function fetchCustomersPages(query: string) {
+  try {
+    // Optimization: If no search, just read the metadata 'total'
+    if (!query) {
+      const response = await database.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.customersId,
+        [Query.limit(1)] // Fetch 1 just to get the total count
+      );
+      return Math.ceil(response.total / ITEMS_PER_PAGE);
+    }
+
+    // If searching, we need to count matches
+    const response = await database.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.customersId,
+      [Query.search("name", query)]
+    );
+    return Math.ceil(response.total / ITEMS_PER_PAGE);
+  } catch (error) {
+    console.error("Error fetching customer pages:", error);
+    return 1;
+  }
+}
+
+// CRUD OPERATIONS
 export async function createCustomer(formData: FormData) {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const imageFile = formData.get("image_url") as File | null;
 
-  // Validate required fields early (image_url optional)
   const parsed = CreateCustomerSchema.safeParse({ name, email, image_url: "" });
+
   if (!parsed.success) {
     return {
       success: false,
@@ -181,28 +214,21 @@ export async function createCustomer(formData: FormData) {
 
   try {
     let imageUrl: string | null = null;
-    // Upload only if we truly received a File with size
-    if (
-      imageFile &&
-      typeof imageFile === "object" &&
-      "arrayBuffer" in imageFile &&
-      (imageFile as File).size > 0
-    ) {
-      const uploadedUrl = await uploadImage(imageFile as File);
+
+    if (imageFile && imageFile.size > 0) {
+      const uploadedUrl = await uploadImage(imageFile);
       if (uploadedUrl) imageUrl = uploadedUrl;
     }
-
-    const documentData = {
-      name,
-      email,
-      image_url: imageUrl,
-    } as const;
 
     await database.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.collections.customersId,
       ID.unique(),
-      documentData
+      {
+        name,
+        email,
+        image_url: imageUrl,
+      }
     );
 
     revalidatePath("/dashboard/customers");
@@ -211,17 +237,6 @@ export async function createCustomer(formData: FormData) {
     console.error("Error creating customer:", error);
     return { success: false, message: "Failed to create customer" };
   }
-}
-
-export async function deleteCustomer(id: string): Promise<void> {
-  await database.deleteDocument(
-    appwriteConfig.databaseId,
-    appwriteConfig.collections.customersId,
-    id
-  );
-
-  revalidatePath("/dashboard/customers");
-  redirect("/dashboard/customers");
 }
 
 export async function updateCustomer(id: string, formData: FormData) {
@@ -245,10 +260,25 @@ export async function updateCustomer(id: string, formData: FormData) {
     console.error("Database Error:", err);
     return { message: "Failed to update customer." };
   }
-
-  // Revalidate the customers path
   revalidatePath("/dashboard/customers");
-
-  // Redirect after successful update
   redirect("/dashboard/customers");
 }
+
+export async function deleteCustomer(id: string): Promise<void> {
+  try {
+    await database.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.collections.customersId,
+      id
+    );
+    revalidatePath("/dashboard/customers");
+  } catch (error) {
+    console.error("Failed to delete customer:", error);
+  }
+}
+
+
+
+
+
+

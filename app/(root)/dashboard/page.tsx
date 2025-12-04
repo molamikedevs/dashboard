@@ -10,7 +10,7 @@ import {
   RevenueChartSkeleton,
 } from "@/components/common/skeletons";
 
-export const dynamic = "force-dynamic";
+
 
 export const metadata = {
   title: "Dashboard",

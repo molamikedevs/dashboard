@@ -7,6 +7,10 @@ import { Avatar } from "../common/avatar";
 export default async function LatestInvoices() {
   const latestInvoice = await getLatestInvoices();
 
+  if (!latestInvoice || latestInvoice.length === 0) {
+    return <p className="mt-4 text-gray-500">No data available.</p>;
+  }
+
   return (
     <div className="flex w-full flex-col md:col-span-4">
       <h2 className="mb-4 text-xl md:text-2xl font-serif ">Latest Invoices</h2>
@@ -30,6 +34,7 @@ export default async function LatestInvoices() {
                     src={invoice.image_url}
                     alt={`${invoice.name}'s profile picture`}
                     size={40}
+                    className="mr-4"
                   />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold md:text-base text-custom-foreground">

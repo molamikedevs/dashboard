@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { deleteCustomer } from "@/lib/actions/action.customer";
 import { deleteInvoice } from "@/lib/actions/action.invoice";
 import Link from "next/link";
+import DeleteModal from "./delete-modal";
 
 interface ActionsProps {
   id: string;
@@ -13,7 +14,12 @@ interface ActionsProps {
   onDeleteSuccess?: () => void;
 }
 
-export function ActionButtons({ id, type, editPath, onDeleteSuccess }: ActionsProps) {
+export function ActionButtons({
+  id,
+  type,
+  editPath,
+  onDeleteSuccess,
+}: ActionsProps) {
   // Determine the appropriate delete function based on type
   const getDeleteFunction = () => {
     switch (type) {
@@ -72,25 +78,16 @@ export function ActionButtons({ id, type, editPath, onDeleteSuccess }: ActionsPr
   };
 
   const handleDelete = async () => {
-    const confirmDelete = new Promise((resolve, reject) => {
-      toast.warning(
-        <div className="flex flex-col gap-2">
-          <p className="font-medium">{getDeleteMessage()}</p>
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={() => resolve(true)}
-              className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-500 transition-colors"
-            >
-              Yes, delete
-            </button>
-            <button
-              onClick={() => reject(new Error("Cancelled"))}
-              className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded hover:bg-gray-400 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>,
+    let toastId: number | string | undefined;
+
+    // Show confirmation modal
+    const confirmDelete = new Promise<boolean>((resolve, reject) => {
+      toastId = toast.warning(
+        <DeleteModal
+          getDeleteMessage={getDeleteMessage}
+          resolve={resolve}
+          reject={reject}
+        />,
         {
           autoClose: false,
           closeOnClick: false,
@@ -101,18 +98,18 @@ export function ActionButtons({ id, type, editPath, onDeleteSuccess }: ActionsPr
 
     try {
       await confirmDelete;
-      // If user confirmed, proceed with deletion
+
       const deleteFunction = getDeleteFunction();
       await deleteFunction(id);
+
       toast.success(getSuccessMessage());
       onDeleteSuccess?.();
     } catch (error) {
+      if (toastId) toast.dismiss(toastId);
       if (error instanceof Error && error.message !== "Cancelled") {
         console.error(`Failed to delete ${type}:`, error);
         toast.error(getErrorMessage());
       }
-      // If cancelled, close the toast
-      toast.dismiss();
     }
   };
 
